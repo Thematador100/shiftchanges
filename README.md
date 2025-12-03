@@ -33,13 +33,15 @@ git push -u origin main
 
 In your Vercel project settings (Settings > Environment Variables), add:
 
-| Variable | Description |
-|----------|-------------|
-| `STRIPE_SECRET_KEY` | Your Stripe secret key (sk_live_...) |
-| `VITE_STRIPE_PUBLISHABLE_KEY` | Your Stripe publishable key (pk_live_...) |
-| `STRIPE_WEBHOOK_SECRET` | Stripe webhook signing secret |
-| `API_KEY` | Google Gemini API key |
-| `VITE_ADMIN_PASSWORD` | (Optional) Admin password |
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `GEMINI_API_KEY` | Google Gemini API key (get from [Google AI Studio](https://aistudio.google.com/app/apikey)) | **Yes** |
+| `STRIPE_SECRET_KEY` | Your Stripe secret key (sk_live_...) | **Yes** |
+| `VITE_STRIPE_PUBLISHABLE_KEY` | Your Stripe publishable key (pk_live_...) | **Yes** |
+| `STRIPE_WEBHOOK_SECRET` | Stripe webhook signing secret | **Yes** |
+| `VITE_ADMIN_PASSWORD` | Admin password for God Mode (default: shiftchange2025) | No |
+
+**Important:** After adding environment variables, you MUST redeploy your application for changes to take effect.
 
 ### 4. Set Up Stripe Webhook
 
@@ -58,12 +60,36 @@ Vercel will automatically deploy on every push to main.
 # Install dependencies
 npm install
 
-# Create .env.local with your keys
-cp .env.example .env.local
+# Create .env file with your keys
+cp .env.example .env
+# Edit .env and add your actual API keys
 
 # Start dev server
 npm run dev
 ```
+
+**Note:** For local development, create a `.env` file (not `.env.local`) in the root directory. Vercel's serverless functions look for `.env` during local development.
+
+## Troubleshooting
+
+### "Connection Error" or "Server configuration error: API key missing"
+
+If you see these errors after deploying to Vercel:
+
+1. **Verify environment variable name:** Make sure you're using `GEMINI_API_KEY` (not `API_KEY`) in Vercel settings
+2. **Check all environments:** Ensure the variable is set for Production, Preview, AND Development
+3. **Redeploy:** After adding/changing environment variables, you MUST trigger a new deployment:
+   - Go to Deployments tab in Vercel
+   - Click "Redeploy" on the latest deployment
+   - Or push a new commit to trigger automatic deployment
+4. **Verify API key:** Test your Gemini API key at [Google AI Studio](https://aistudio.google.com/)
+
+### "API_KEY already exists" Error
+
+If Vercel says the variable already exists:
+- Delete the old `API_KEY` variable
+- Add a new variable named `GEMINI_API_KEY` instead
+- This is more specific and won't conflict with other services
 
 ## Tech Stack
 

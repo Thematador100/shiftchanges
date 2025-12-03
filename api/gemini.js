@@ -1,6 +1,7 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const GOOGLE_KEY = (process.env.API_KEY || process.env.GEMINI_API_KEY || '').trim();
+// Primary: GEMINI_API_KEY, Fallback: API_KEY for backwards compatibility
+const GOOGLE_KEY = (process.env.GEMINI_API_KEY || process.env.API_KEY || '').trim();
 
 function cleanJson(text) {
   if (!text) return "{}";
