@@ -139,9 +139,16 @@ const App: React.FC = () => {
       // Trigger God Mode on 5th click
       if (logoClicks + 1 === 5) {
           const password = window.prompt("ShiftChange Admin Override\nEnter Access Key:");
-          // Check against environment variable injected by server or Vite
-          const envPassword = (window.env?.VITE_ADMIN_PASSWORD) || (import.meta as any).env.VITE_ADMIN_PASSWORD || 'shiftchange2025';
-          
+          // Check against environment variable injected by server or Vite (MUST be set in environment)
+          const envPassword = (window.env?.VITE_ADMIN_PASSWORD) || (import.meta as any).env.VITE_ADMIN_PASSWORD;
+
+          if (!envPassword) {
+              setNotification("Admin password not configured. Set VITE_ADMIN_PASSWORD in environment.");
+              setNotificationType('error');
+              setLogoClicks(0);
+              return;
+          }
+
           if (password === envPassword) {
               setPurchasedPackage('leadership-np'); // Unlock highest tier
               setIsDevMode(true);

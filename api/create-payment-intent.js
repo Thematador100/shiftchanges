@@ -16,10 +16,44 @@ const VALID_COUPONS = {
   'DEMO_MODE': 100
 };
 
+// Simple in-memory rate limiting (for production, use Redis or similar)
+const rateLimitStore = new Map();
+const RATE_LIMIT_WINDOW = 60000; // 1 minute
+const MAX_REQUESTS_PER_WINDOW = 10; // 10 payment requests per minute per IP
+
+function checkRateLimit(identifier) {
+  const now = Date.now();
+  const userRecord = rateLimitStore.get(identifier);
+
+  if (!userRecord) {
+    rateLimitStore.set(identifier, { count: 1, resetTime: now + RATE_LIMIT_WINDOW });
+    return true;
+  }
+
+  if (now > userRecord.resetTime) {
+    rateLimitStore.set(identifier, { count: 1, resetTime: now + RATE_LIMIT_WINDOW });
+    return true;
+  }
+
+  if (userRecord.count >= MAX_REQUESTS_PER_WINDOW) {
+    return false;
+  }
+
+  userRecord.count++;
+  return true;
+}
+
+// Email validation
+function isValidEmail(email) {
+  if (typeof email !== 'string') return false;
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email) && email.length <= 254;
+}
+
 export default async function handler(req, res) {
-  // Enable CORS
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  // Enable CORS - TODO: Replace '*' with your actual domain in production (e.g., 'https://yoursite.vercel.app')
+  const allowedOrigin = process.env.ALLOWED_ORIGIN || '*';
+  res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,POST');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
@@ -31,13 +65,32 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
+  // Rate limiting
+  const identifier = req.headers['x-forwarded-for'] || req.connection?.remoteAddress || 'unknown';
+  if (!checkRateLimit(identifier)) {
+    return res.status(429).json({ error: 'Too many requests. Please try again later.' });
+  }
+
   try {
     const { plan, email, couponCode } = req.body;
-    
+
+    // Input validation
+    if (!plan || typeof plan !== 'string') {
+      return res.status(400).json({ error: 'Invalid request: plan is required' });
+    }
+
+    if (!email || !isValidEmail(email)) {
+      return res.status(400).json({ error: 'Invalid email address' });
+    }
+
     if (!packagePrices[plan]) {
       return res.status(400).json({ error: "Invalid plan selected" });
     }
-    
+
+    if (couponCode && typeof couponCode !== 'string') {
+      return res.status(400).json({ error: 'Invalid coupon code format' });
+    }
+
     if (!STRIPE_KEY) {
       return res.status(500).json({ error: "Stripe configuration missing on server." });
     }

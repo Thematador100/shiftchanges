@@ -2,6 +2,44 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const GOOGLE_KEY = (process.env.API_KEY || process.env.GEMINI_API_KEY || '').trim();
 
+// Simple in-memory rate limiting (for production, use Redis or similar)
+const rateLimitStore = new Map();
+const RATE_LIMIT_WINDOW = 60000; // 1 minute
+const MAX_REQUESTS_PER_WINDOW = 20; // 20 requests per minute per IP
+
+function checkRateLimit(identifier) {
+  const now = Date.now();
+  const userRecord = rateLimitStore.get(identifier);
+
+  if (!userRecord) {
+    rateLimitStore.set(identifier, { count: 1, resetTime: now + RATE_LIMIT_WINDOW });
+    return true;
+  }
+
+  if (now > userRecord.resetTime) {
+    rateLimitStore.set(identifier, { count: 1, resetTime: now + RATE_LIMIT_WINDOW });
+    return true;
+  }
+
+  if (userRecord.count >= MAX_REQUESTS_PER_WINDOW) {
+    return false;
+  }
+
+  userRecord.count++;
+  return true;
+}
+
+// Input validation helpers
+function validateAction(action) {
+  const validActions = ['ping', 'generate', 'improve', 'tailor', 'critique', 'matchScore', 'coverLetter', 'optimizeSkills'];
+  return validActions.includes(action);
+}
+
+function sanitizeString(str, maxLength = 10000) {
+  if (typeof str !== 'string') return '';
+  return str.slice(0, maxLength).trim();
+}
+
 function cleanJson(text) {
   if (!text) return "{}";
   let cleaned = text.trim();
@@ -166,9 +204,9 @@ const getSystemInstruction = (level) => {
 };
 
 export default async function handler(req, res) {
-  // CORS headers
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  // CORS headers - TODO: Replace '*' with your actual domain in production (e.g., 'https://yoursite.vercel.app')
+  const allowedOrigin = process.env.ALLOWED_ORIGIN || '*';
+  res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,POST');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
@@ -180,8 +218,23 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
+  // Rate limiting
+  const identifier = req.headers['x-forwarded-for'] || req.connection?.remoteAddress || 'unknown';
+  if (!checkRateLimit(identifier)) {
+    return res.status(429).json({ error: 'Too many requests. Please try again later.' });
+  }
+
   try {
     const { action, payload } = req.body;
+
+    // Input validation
+    if (!action || typeof action !== 'string') {
+      return res.status(400).json({ error: 'Invalid request: action is required' });
+    }
+
+    if (!validateAction(action)) {
+      return res.status(400).json({ error: 'Invalid action specified' });
+    }
     
     if (action === 'ping') {
       return res.json({ status: 'ok' });
@@ -198,18 +251,26 @@ export default async function handler(req, res) {
 
     switch (action) {
       case 'generate': {
+        if (!payload?.prompt || typeof payload.prompt !== 'string') {
+          return res.status(400).json({ error: 'Invalid payload: prompt is required' });
+        }
+        const sanitizedPrompt = sanitizeString(payload.prompt, 5000);
         const chat = model.startChat({
           systemInstruction: getSystemInstruction(payload.level),
           generationConfig: { responseMimeType: "application/json" }
         });
-        const response = await chat.sendMessage(payload.prompt);
+        const response = await chat.sendMessage(sanitizedPrompt);
         const cleanedText = cleanJson(response.response.text());
         result = ensureResumeDataStructure(JSON.parse(cleanedText));
         break;
       }
-      
+
       case 'improve': {
-        const prompt = `Based on the following resume text, improve and restructure it into JSON format. Enhance the language to be more impactful. Resume:\n\n${payload.resumeText}`;
+        if (!payload?.resumeText || typeof payload.resumeText !== 'string') {
+          return res.status(400).json({ error: 'Invalid payload: resumeText is required' });
+        }
+        const sanitizedText = sanitizeString(payload.resumeText, 15000);
+        const prompt = `Based on the following resume text, improve and restructure it into JSON format. Enhance the language to be more impactful. Resume:\n\n${sanitizedText}`;
         const chat = model.startChat({
           systemInstruction: getSystemInstruction(),
           generationConfig: { responseMimeType: "application/json" }
@@ -221,7 +282,11 @@ export default async function handler(req, res) {
       }
 
       case 'tailor': {
-        const prompt = `Tailor the following resume to this job description.\n\nResume: ${formatResumeAsText(payload.resumeData)}\n\nJob: ${payload.jobDescription}`;
+        if (!payload?.resumeData || !payload?.jobDescription) {
+          return res.status(400).json({ error: 'Invalid payload: resumeData and jobDescription are required' });
+        }
+        const sanitizedJob = sanitizeString(payload.jobDescription, 5000);
+        const prompt = `Tailor the following resume to this job description.\n\nResume: ${formatResumeAsText(payload.resumeData)}\n\nJob: ${sanitizedJob}`;
         const chat = model.startChat({
           systemInstruction: getSystemInstruction(),
           generationConfig: { responseMimeType: "application/json" }
@@ -233,6 +298,9 @@ export default async function handler(req, res) {
       }
 
       case 'critique': {
+        if (!payload?.resumeData) {
+          return res.status(400).json({ error: 'Invalid payload: resumeData is required' });
+        }
         const prompt = `Act as a nursing career coach and critique this resume. Return JSON with: overallFeedback (string), strengths (array), areasForImprovement (array), bulletPointImprovements (array of objects with original, improved, explanation).\n\n${formatResumeAsText(payload.resumeData)}`;
         const chat = model.startChat({
           generationConfig: { responseMimeType: "application/json" }
@@ -243,7 +311,11 @@ export default async function handler(req, res) {
       }
 
       case 'matchScore': {
-        const prompt = `Compare this resume against the job description. Return JSON with: score (0-100), probability (Low/Medium/High), missingKeywords (array), criticalGaps (array), reasoning (string).\n\nResume: ${formatResumeAsText(payload.resumeData)}\n\nJob: ${payload.jobDescription}`;
+        if (!payload?.resumeData || !payload?.jobDescription) {
+          return res.status(400).json({ error: 'Invalid payload: resumeData and jobDescription are required' });
+        }
+        const sanitizedJob = sanitizeString(payload.jobDescription, 5000);
+        const prompt = `Compare this resume against the job description. Return JSON with: score (0-100), probability (Low/Medium/High), missingKeywords (array), criticalGaps (array), reasoning (string).\n\nResume: ${formatResumeAsText(payload.resumeData)}\n\nJob: ${sanitizedJob}`;
         const chat = model.startChat({
           generationConfig: { responseMimeType: "application/json" }
         });
@@ -253,16 +325,23 @@ export default async function handler(req, res) {
       }
 
       case 'coverLetter': {
+        if (!payload?.resumeData || !payload?.jobDescription) {
+          return res.status(400).json({ error: 'Invalid payload: resumeData and jobDescription are required' });
+        }
+        const sanitizedJob = sanitizeString(payload.jobDescription, 5000);
         const details = payload.resumeData.coverLetterDetails || {};
-        const prompt = `Write a compelling cover letter for a Nurse.\n\nJob: ${payload.jobDescription}\n\nResume: ${formatResumeAsText(payload.resumeData)}\n\nRecipient: ${details.recipientName || 'Hiring Manager'}\nCompany: ${details.companyName || 'the Organization'}\n\nKeep it under 400 words. Return only the letter body.`;
+        const prompt = `Write a compelling cover letter for a Nurse.\n\nJob: ${sanitizedJob}\n\nResume: ${formatResumeAsText(payload.resumeData)}\n\nRecipient: ${sanitizeString(details.recipientName || 'Hiring Manager', 100)}\nCompany: ${sanitizeString(details.companyName || 'the Organization', 100)}\n\nKeep it under 400 words. Return only the letter body.`;
         const response = await model.generateContent(prompt);
         result = { text: response.response.text() || "" };
         break;
       }
 
       case 'optimizeSkills': {
-        const currentSkills = [...payload.resumeData.skills, ...payload.resumeData.softSkills].join(', ');
-        const prompt = `Identify 5-8 missing high-impact nursing skills for ${payload.level === 'new_grad' ? 'New Graduate RN' : payload.level === 'leadership' ? 'Nurse Manager' : 'Experienced Nurse'}. Current skills: ${currentSkills}. Return JSON with: newSkills (array), newSoftSkills (array).`;
+        if (!payload?.resumeData) {
+          return res.status(400).json({ error: 'Invalid payload: resumeData is required' });
+        }
+        const currentSkills = [...(payload.resumeData.skills || []), ...(payload.resumeData.softSkills || [])].join(', ');
+        const prompt = `Identify 5-8 missing high-impact nursing skills for ${payload.level === 'new_grad' ? 'New Graduate RN' : payload.level === 'leadership' ? 'Nurse Manager' : 'Experienced Nurse'}. Current skills: ${sanitizeString(currentSkills, 2000)}. Return JSON with: newSkills (array), newSoftSkills (array).`;
         const chat = model.startChat({
           generationConfig: { responseMimeType: "application/json" }
         });
