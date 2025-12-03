@@ -20,7 +20,7 @@ This will:
 1. Visit https://vercel.com/dashboard
 2. Select your project
 3. Click **Settings** → **Environment Variables**
-4. Add these **3 variables** (for all environments: Production, Preview, Development):
+4. Add these **4 variables** (for all environments: Production, Preview, Development):
 
 ```
 API_KEY
@@ -29,9 +29,17 @@ Value: AIzaSyAkir5Yb08HTaWo5U0FdG9T18ML0vUC_GU
 GEMINI_API_KEY
 Value: AIzaSyAkir5Yb08HTaWo5U0FdG9T18ML0vUC_GU
 
+DEEPSEEK_API_KEY
+Value: sk-c7cb7706be1d4185ad81ef4e4df7ecf7
+
 VITE_ADMIN_PASSWORD
 Value: shiftchange2025
 ```
+
+**How the AI Backup System Works:**
+- **Primary**: Google Gemini (tries first)
+- **Backup**: DeepSeek (automatic fallback if Gemini fails)
+- If Gemini fails, the system automatically switches to DeepSeek without user intervention
 
 5. Click **Save**
 6. **Redeploy** your site: `vercel --prod` (environment variables require redeploy)
@@ -182,8 +190,12 @@ vercel list
 ```
 API_KEY=AIzaSyAkir5Yb08HTaWo5U0FdG9T18ML0vUC_GU
 GEMINI_API_KEY=AIzaSyAkir5Yb08HTaWo5U0FdG9T18ML0vUC_GU
+DEEPSEEK_API_KEY=sk-c7cb7706be1d4185ad81ef4e4df7ecf7
 VITE_ADMIN_PASSWORD=shiftchange2025
 ```
+
+**AI Provider Failover:**
+- Gemini → DeepSeek (automatic)
 
 **What's NOT deployed yet:**
 - Stripe payment processing (Stage 2)

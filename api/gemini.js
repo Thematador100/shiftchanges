@@ -1,6 +1,8 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import fetch from 'node-fetch';
 
 const GOOGLE_KEY = (process.env.API_KEY || process.env.GEMINI_API_KEY || '').trim();
+const DEEPSEEK_KEY = (process.env.DEEPSEEK_API_KEY || '').trim();
 
 // Simple in-memory rate limiting (for production, use Redis or similar)
 const rateLimitStore = new Map();
@@ -38,6 +40,38 @@ function validateAction(action) {
 function sanitizeString(str, maxLength = 10000) {
   if (typeof str !== 'string') return '';
   return str.slice(0, maxLength).trim();
+}
+
+// DeepSeek API helper functions
+async function callDeepSeek(systemPrompt, userPrompt, useJson = true) {
+  if (!DEEPSEEK_KEY) {
+    throw new Error('DeepSeek API key not configured');
+  }
+
+  const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${DEEPSEEK_KEY}`
+    },
+    body: JSON.stringify({
+      model: 'deepseek-chat',
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt }
+      ],
+      response_format: useJson ? { type: 'json_object' } : undefined,
+      temperature: 0.7
+    })
+  });
+
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(`DeepSeek API error: ${response.status} - ${error}`);
+  }
+
+  const data = await response.json();
+  return data.choices[0].message.content;
 }
 
 function cleanJson(text) {
@@ -240,14 +274,13 @@ export default async function handler(req, res) {
       return res.json({ status: 'ok' });
     }
 
-    if (!GOOGLE_KEY) {
-      return res.status(500).json({ message: 'Server configuration error: API key missing.' });
+    // Check if at least one API key is configured
+    if (!GOOGLE_KEY && !DEEPSEEK_KEY) {
+      return res.status(500).json({ message: 'Server configuration error: No AI API keys configured.' });
     }
 
-    const genAI = new GoogleGenerativeAI(GOOGLE_KEY);
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-
     let result;
+    let usedProvider = 'none';
 
     switch (action) {
       case 'generate': {
@@ -255,13 +288,31 @@ export default async function handler(req, res) {
           return res.status(400).json({ error: 'Invalid payload: prompt is required' });
         }
         const sanitizedPrompt = sanitizeString(payload.prompt, 5000);
-        const chat = model.startChat({
-          systemInstruction: getSystemInstruction(payload.level),
-          generationConfig: { responseMimeType: "application/json" }
-        });
-        const response = await chat.sendMessage(sanitizedPrompt);
-        const cleanedText = cleanJson(response.response.text());
-        result = ensureResumeDataStructure(JSON.parse(cleanedText));
+        const systemInstruction = getSystemInstruction(payload.level);
+
+        // Try Gemini first, fallback to DeepSeek
+        try {
+          if (GOOGLE_KEY) {
+            const genAI = new GoogleGenerativeAI(GOOGLE_KEY);
+            const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+            const chat = model.startChat({
+              systemInstruction,
+              generationConfig: { responseMimeType: "application/json" }
+            });
+            const response = await chat.sendMessage(sanitizedPrompt);
+            const cleanedText = cleanJson(response.response.text());
+            result = ensureResumeDataStructure(JSON.parse(cleanedText));
+            usedProvider = 'gemini';
+          } else {
+            throw new Error('Gemini not configured');
+          }
+        } catch (geminiError) {
+          console.log('Gemini failed, trying DeepSeek:', geminiError.message);
+          const deepseekResponse = await callDeepSeek(systemInstruction, sanitizedPrompt, true);
+          const cleanedText = cleanJson(deepseekResponse);
+          result = ensureResumeDataStructure(JSON.parse(cleanedText));
+          usedProvider = 'deepseek';
+        }
         break;
       }
 
@@ -271,13 +322,30 @@ export default async function handler(req, res) {
         }
         const sanitizedText = sanitizeString(payload.resumeText, 15000);
         const prompt = `Based on the following resume text, improve and restructure it into JSON format. Enhance the language to be more impactful. Resume:\n\n${sanitizedText}`;
-        const chat = model.startChat({
-          systemInstruction: getSystemInstruction(),
-          generationConfig: { responseMimeType: "application/json" }
-        });
-        const response = await chat.sendMessage(prompt);
-        const cleanedText = cleanJson(response.response.text());
-        result = ensureResumeDataStructure(JSON.parse(cleanedText));
+        const systemInstruction = getSystemInstruction();
+
+        try {
+          if (GOOGLE_KEY) {
+            const genAI = new GoogleGenerativeAI(GOOGLE_KEY);
+            const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+            const chat = model.startChat({
+              systemInstruction,
+              generationConfig: { responseMimeType: "application/json" }
+            });
+            const response = await chat.sendMessage(prompt);
+            const cleanedText = cleanJson(response.response.text());
+            result = ensureResumeDataStructure(JSON.parse(cleanedText));
+            usedProvider = 'gemini';
+          } else {
+            throw new Error('Gemini not configured');
+          }
+        } catch (geminiError) {
+          console.log('Gemini failed, trying DeepSeek:', geminiError.message);
+          const deepseekResponse = await callDeepSeek(systemInstruction, prompt, true);
+          const cleanedText = cleanJson(deepseekResponse);
+          result = ensureResumeDataStructure(JSON.parse(cleanedText));
+          usedProvider = 'deepseek';
+        }
         break;
       }
 
@@ -287,13 +355,30 @@ export default async function handler(req, res) {
         }
         const sanitizedJob = sanitizeString(payload.jobDescription, 5000);
         const prompt = `Tailor the following resume to this job description.\n\nResume: ${formatResumeAsText(payload.resumeData)}\n\nJob: ${sanitizedJob}`;
-        const chat = model.startChat({
-          systemInstruction: getSystemInstruction(),
-          generationConfig: { responseMimeType: "application/json" }
-        });
-        const response = await chat.sendMessage(prompt);
-        const cleanedText = cleanJson(response.response.text());
-        result = ensureResumeDataStructure(JSON.parse(cleanedText));
+        const systemInstruction = getSystemInstruction();
+
+        try {
+          if (GOOGLE_KEY) {
+            const genAI = new GoogleGenerativeAI(GOOGLE_KEY);
+            const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+            const chat = model.startChat({
+              systemInstruction,
+              generationConfig: { responseMimeType: "application/json" }
+            });
+            const response = await chat.sendMessage(prompt);
+            const cleanedText = cleanJson(response.response.text());
+            result = ensureResumeDataStructure(JSON.parse(cleanedText));
+            usedProvider = 'gemini';
+          } else {
+            throw new Error('Gemini not configured');
+          }
+        } catch (geminiError) {
+          console.log('Gemini failed, trying DeepSeek:', geminiError.message);
+          const deepseekResponse = await callDeepSeek(systemInstruction, prompt, true);
+          const cleanedText = cleanJson(deepseekResponse);
+          result = ensureResumeDataStructure(JSON.parse(cleanedText));
+          usedProvider = 'deepseek';
+        }
         break;
       }
 
@@ -301,12 +386,28 @@ export default async function handler(req, res) {
         if (!payload?.resumeData) {
           return res.status(400).json({ error: 'Invalid payload: resumeData is required' });
         }
+        const systemPrompt = 'You are a nursing career coach providing constructive resume feedback.';
         const prompt = `Act as a nursing career coach and critique this resume. Return JSON with: overallFeedback (string), strengths (array), areasForImprovement (array), bulletPointImprovements (array of objects with original, improved, explanation).\n\n${formatResumeAsText(payload.resumeData)}`;
-        const chat = model.startChat({
-          generationConfig: { responseMimeType: "application/json" }
-        });
-        const response = await chat.sendMessage(prompt);
-        result = JSON.parse(cleanJson(response.response.text()));
+
+        try {
+          if (GOOGLE_KEY) {
+            const genAI = new GoogleGenerativeAI(GOOGLE_KEY);
+            const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+            const chat = model.startChat({
+              generationConfig: { responseMimeType: "application/json" }
+            });
+            const response = await chat.sendMessage(prompt);
+            result = JSON.parse(cleanJson(response.response.text()));
+            usedProvider = 'gemini';
+          } else {
+            throw new Error('Gemini not configured');
+          }
+        } catch (geminiError) {
+          console.log('Gemini failed, trying DeepSeek:', geminiError.message);
+          const deepseekResponse = await callDeepSeek(systemPrompt, prompt, true);
+          result = JSON.parse(cleanJson(deepseekResponse));
+          usedProvider = 'deepseek';
+        }
         break;
       }
 
@@ -315,12 +416,28 @@ export default async function handler(req, res) {
           return res.status(400).json({ error: 'Invalid payload: resumeData and jobDescription are required' });
         }
         const sanitizedJob = sanitizeString(payload.jobDescription, 5000);
+        const systemPrompt = 'You are an expert at analyzing resume-job description matches.';
         const prompt = `Compare this resume against the job description. Return JSON with: score (0-100), probability (Low/Medium/High), missingKeywords (array), criticalGaps (array), reasoning (string).\n\nResume: ${formatResumeAsText(payload.resumeData)}\n\nJob: ${sanitizedJob}`;
-        const chat = model.startChat({
-          generationConfig: { responseMimeType: "application/json" }
-        });
-        const response = await chat.sendMessage(prompt);
-        result = JSON.parse(cleanJson(response.response.text()));
+
+        try {
+          if (GOOGLE_KEY) {
+            const genAI = new GoogleGenerativeAI(GOOGLE_KEY);
+            const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+            const chat = model.startChat({
+              generationConfig: { responseMimeType: "application/json" }
+            });
+            const response = await chat.sendMessage(prompt);
+            result = JSON.parse(cleanJson(response.response.text()));
+            usedProvider = 'gemini';
+          } else {
+            throw new Error('Gemini not configured');
+          }
+        } catch (geminiError) {
+          console.log('Gemini failed, trying DeepSeek:', geminiError.message);
+          const deepseekResponse = await callDeepSeek(systemPrompt, prompt, true);
+          result = JSON.parse(cleanJson(deepseekResponse));
+          usedProvider = 'deepseek';
+        }
         break;
       }
 
@@ -330,9 +447,25 @@ export default async function handler(req, res) {
         }
         const sanitizedJob = sanitizeString(payload.jobDescription, 5000);
         const details = payload.resumeData.coverLetterDetails || {};
+        const systemPrompt = 'You are an expert cover letter writer for nursing professionals.';
         const prompt = `Write a compelling cover letter for a Nurse.\n\nJob: ${sanitizedJob}\n\nResume: ${formatResumeAsText(payload.resumeData)}\n\nRecipient: ${sanitizeString(details.recipientName || 'Hiring Manager', 100)}\nCompany: ${sanitizeString(details.companyName || 'the Organization', 100)}\n\nKeep it under 400 words. Return only the letter body.`;
-        const response = await model.generateContent(prompt);
-        result = { text: response.response.text() || "" };
+
+        try {
+          if (GOOGLE_KEY) {
+            const genAI = new GoogleGenerativeAI(GOOGLE_KEY);
+            const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+            const response = await model.generateContent(prompt);
+            result = { text: response.response.text() || "" };
+            usedProvider = 'gemini';
+          } else {
+            throw new Error('Gemini not configured');
+          }
+        } catch (geminiError) {
+          console.log('Gemini failed, trying DeepSeek:', geminiError.message);
+          const deepseekResponse = await callDeepSeek(systemPrompt, prompt, false);
+          result = { text: deepseekResponse };
+          usedProvider = 'deepseek';
+        }
         break;
       }
 
@@ -341,12 +474,28 @@ export default async function handler(req, res) {
           return res.status(400).json({ error: 'Invalid payload: resumeData is required' });
         }
         const currentSkills = [...(payload.resumeData.skills || []), ...(payload.resumeData.softSkills || [])].join(', ');
+        const systemPrompt = 'You are an expert in nursing skills and competencies.';
         const prompt = `Identify 5-8 missing high-impact nursing skills for ${payload.level === 'new_grad' ? 'New Graduate RN' : payload.level === 'leadership' ? 'Nurse Manager' : 'Experienced Nurse'}. Current skills: ${sanitizeString(currentSkills, 2000)}. Return JSON with: newSkills (array), newSoftSkills (array).`;
-        const chat = model.startChat({
-          generationConfig: { responseMimeType: "application/json" }
-        });
-        const response = await chat.sendMessage(prompt);
-        result = JSON.parse(cleanJson(response.response.text()));
+
+        try {
+          if (GOOGLE_KEY) {
+            const genAI = new GoogleGenerativeAI(GOOGLE_KEY);
+            const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+            const chat = model.startChat({
+              generationConfig: { responseMimeType: "application/json" }
+            });
+            const response = await chat.sendMessage(prompt);
+            result = JSON.parse(cleanJson(response.response.text()));
+            usedProvider = 'gemini';
+          } else {
+            throw new Error('Gemini not configured');
+          }
+        } catch (geminiError) {
+          console.log('Gemini failed, trying DeepSeek:', geminiError.message);
+          const deepseekResponse = await callDeepSeek(systemPrompt, prompt, true);
+          result = JSON.parse(cleanJson(deepseekResponse));
+          usedProvider = 'deepseek';
+        }
         break;
       }
 
@@ -354,9 +503,14 @@ export default async function handler(req, res) {
         return res.status(400).json({ message: 'Invalid action' });
     }
 
+    // Add metadata about which provider was used
+    if (result && typeof result === 'object') {
+      result._provider = usedProvider;
+    }
+
     return res.json(result);
   } catch (error) {
-    console.error('Gemini API Error:', error);
+    console.error('AI API Error:', error);
     return res.status(500).json({ message: error.message });
   }
 }
