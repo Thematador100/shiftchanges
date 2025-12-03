@@ -550,9 +550,9 @@ const LevelCard: React.FC<{ title: string; subtitle: string; isSelected: boolean
     </button>
 );
 
-const ActionButton: React.FC<{onClick: ()=>void, isLoading: boolean, text: string, disabled?: boolean}> = ({onClick, isLoading, text, disabled}) => (
+const ActionButton: React.FC<{onClick: ()=>void | Promise<void>, isLoading: boolean, text: string, disabled?: boolean}> = ({onClick, isLoading, text, disabled}) => (
     <button
-        onClick={onClick}
+        onClick={() => { onClick(); }}
         disabled={isLoading || disabled}
         className="w-full py-4 bg-teal-600 hover:bg-teal-500 text-white text-lg font-bold rounded-xl shadow-lg shadow-teal-500/20 disabled:bg-slate-300 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
     >
