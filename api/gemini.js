@@ -199,34 +199,32 @@ export default async function handler(req, res) {
     switch (action) {
       case 'generate': {
         const chat = model.startChat({
-          systemInstruction: getSystemInstruction(payload.level),
           generationConfig: { responseMimeType: "application/json" }
         });
-        const response = await chat.sendMessage(payload.prompt);
+        const fullPrompt = `${getSystemInstruction(payload.level)}\n\n${payload.prompt}`;
+        const response = await chat.sendMessage(fullPrompt);
         const cleanedText = cleanJson(response.response.text());
         result = ensureResumeDataStructure(JSON.parse(cleanedText));
         break;
       }
       
       case 'improve': {
-        const prompt = `Based on the following resume text, improve and restructure it into JSON format. Enhance the language to be more impactful. Resume:\n\n${payload.resumeText}`;
         const chat = model.startChat({
-          systemInstruction: getSystemInstruction(),
           generationConfig: { responseMimeType: "application/json" }
         });
-        const response = await chat.sendMessage(prompt);
+        const fullPrompt = `${getSystemInstruction()}\n\nBased on the following resume text, improve and restructure it into JSON format. Enhance the language to be more impactful. Resume:\n\n${payload.resumeText}`;
+        const response = await chat.sendMessage(fullPrompt);
         const cleanedText = cleanJson(response.response.text());
         result = ensureResumeDataStructure(JSON.parse(cleanedText));
         break;
       }
 
       case 'tailor': {
-        const prompt = `Tailor the following resume to this job description.\n\nResume: ${formatResumeAsText(payload.resumeData)}\n\nJob: ${payload.jobDescription}`;
         const chat = model.startChat({
-          systemInstruction: getSystemInstruction(),
           generationConfig: { responseMimeType: "application/json" }
         });
-        const response = await chat.sendMessage(prompt);
+        const fullPrompt = `${getSystemInstruction()}\n\nTailor the following resume to this job description.\n\nResume: ${formatResumeAsText(payload.resumeData)}\n\nJob: ${payload.jobDescription}`;
+        const response = await chat.sendMessage(fullPrompt);
         const cleanedText = cleanJson(response.response.text());
         result = ensureResumeDataStructure(JSON.parse(cleanedText));
         break;
