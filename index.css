@@ -1,0 +1,16 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom utilities */
+@layer utilities {
+  .text-gradient-teal {
+    background: linear-gradient(to right, #2dd4bf, #0ea5e9);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  
+  .bg-gradient-shift {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  }
+}

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ShiftChange | AI Resume Builder for Nurses & Healthcare Professionals</title>
+    <meta name="description" content="Build ATS-optimized resumes for nursing jobs with AI. Get your clinical career on track with ShiftChange - the resume builder designed for healthcare professionals.">
+    <meta name="keywords" content="nurse resume, nursing resume builder, healthcare resume, ATS resume, clinical resume, RN resume, travel nurse resume">
+    <meta name="author" content="ShiftChange">
+    
+    <!-- Open Graph / Social Media -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="ShiftChange | AI Resume Builder for Nurses">
+    <meta property="og:description" content="Build ATS-optimized resumes for nursing jobs with AI. Clinical Career Velocity.">
+    <meta property="og:url" content="https://shiftchange.app">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="ShiftChange | AI Resume Builder for Nurses">
+    <meta name="twitter:description" content="Build ATS-optimized resumes for nursing jobs with AI.">
+    
+    <!-- Canonical URL (update with your domain) -->
+    <link rel="canonical" href="https://shiftchange.app">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
+    <!-- PDF.js for PDF parsing -->
+    <script src="https://unpkg.com/pdfjs-dist@4.4.168/build/pdf.min.js"></script>
+    <script>
+      // Configure PDF.js worker source
+      if (typeof pdfjsLib !== 'undefined') {
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://unpkg.com/pdfjs-dist@4.4.168/build/pdf.worker.min.js';
+      }
+    </script>
+    
+    <!-- Mammoth.js for DOCX parsing -->
+    <script src="https://unpkg.com/mammoth@1.6.0/mammoth.browser.min.js"></script>
+    
+    <style>
+      body {
+        font-family: 'Inter', sans-serif;
+      }
+      h1, h2, h3, h4, h5, h6, .font-brand {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+      }
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+      .animate-fade-in {
+        animation: fadeIn 0.5s ease-out forwards;
+      }
+      @keyframes fadeInDown {
+        from {
+          opacity: 0;
+          transform: translate3d(0, -20%, 0);
+        }
+        to {
+          opacity: 1;
+          transform: translate3d(0, 0, 0);
+        }
+      }
+      .animate-fade-in-down {
+        animation: fadeInDown 0.5s ease-out forwards;
+      }
+      /* Custom Gradients */
+      .bg-gradient-shift {
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      }
+      .text-gradient-teal {
+        background: linear-gradient(to right, #2dd4bf, #0ea5e9);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+      
+      @media print {
+        .print-hidden {
+          display: none;
+        }
+        .sticky {
+          position: static;
+        }
+        .print-grid-reset {
+          display: block;
+        }
+        .print-no-scroll {
+          min-height: auto;
+          max-height: none;
+          overflow-y: visible;
+          padding: 0;
+        }
+      }
+    </style>
+    <link rel="stylesheet" href="/index.css">
+</head>
+  <body class="bg-slate-50 text-slate-900">
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
