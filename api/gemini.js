@@ -2,6 +2,73 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const GOOGLE_KEY = (process.env.API_KEY || process.env.GEMINI_API_KEY || '').trim();
 
+// Retry configuration
+const MAX_RETRIES = 3;
+const INITIAL_RETRY_DELAY = 1000; // 1 second
+const MAX_RETRY_DELAY = 10000; // 10 seconds
+const REQUEST_TIMEOUT = 30000; // 30 seconds
+
+// Check if error is retryable
+function isRetryableError(error) {
+  const message = error?.message || '';
+  // Retry on network errors, timeouts, rate limits, and 5xx errors
+  return (
+    message.includes('fetch') ||
+    message.includes('network') ||
+    message.includes('timeout') ||
+    message.includes('ECONNRESET') ||
+    message.includes('ETIMEDOUT') ||
+    message.includes('503') ||
+    message.includes('429') ||
+    message.includes('500') ||
+    message.includes('502') ||
+    message.includes('504')
+  );
+}
+
+// Retry wrapper with exponential backoff
+async function retryWithBackoff(fn, retries = MAX_RETRIES) {
+  let lastError;
+
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      return await fn();
+    } catch (error) {
+      lastError = error;
+
+      // Don't retry if this is the last attempt or error is not retryable
+      if (attempt === retries || !isRetryableError(error)) {
+        throw error;
+      }
+
+      // Calculate delay with exponential backoff and jitter
+      const baseDelay = Math.min(
+        INITIAL_RETRY_DELAY * Math.pow(2, attempt),
+        MAX_RETRY_DELAY
+      );
+      const jitter = Math.random() * 0.3 * baseDelay; // Add up to 30% jitter
+      const delay = baseDelay + jitter;
+
+      console.log(`Gemini API attempt ${attempt + 1} failed, retrying in ${Math.round(delay)}ms...`, error.message);
+
+      // Wait before retrying
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+  }
+
+  throw lastError;
+}
+
+// Timeout wrapper for API calls
+function withTimeout(promise, timeoutMs = REQUEST_TIMEOUT) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) =>
+      setTimeout(() => reject(new Error(`Request timeout after ${timeoutMs}ms`)), timeoutMs)
+    )
+  ]);
+}
+
 function cleanJson(text) {
   if (!text) return "{}";
   let cleaned = text.trim();
@@ -198,76 +265,90 @@ export default async function handler(req, res) {
 
     switch (action) {
       case 'generate': {
-        const chat = model.startChat({
-          systemInstruction: getSystemInstruction(payload.level),
-          generationConfig: { responseMimeType: "application/json" }
+        result = await retryWithBackoff(async () => {
+          const chat = model.startChat({
+            systemInstruction: getSystemInstruction(payload.level),
+            generationConfig: { responseMimeType: "application/json" }
+          });
+          const response = await withTimeout(chat.sendMessage(payload.prompt));
+          const cleanedText = cleanJson(response.response.text());
+          return ensureResumeDataStructure(JSON.parse(cleanedText));
         });
-        const response = await chat.sendMessage(payload.prompt);
-        const cleanedText = cleanJson(response.response.text());
-        result = ensureResumeDataStructure(JSON.parse(cleanedText));
         break;
       }
-      
+
       case 'improve': {
-        const prompt = `Based on the following resume text, improve and restructure it into JSON format. Enhance the language to be more impactful. Resume:\n\n${payload.resumeText}`;
-        const chat = model.startChat({
-          systemInstruction: getSystemInstruction(),
-          generationConfig: { responseMimeType: "application/json" }
+        result = await retryWithBackoff(async () => {
+          const prompt = `Based on the following resume text, improve and restructure it into JSON format. Enhance the language to be more impactful. Resume:\n\n${payload.resumeText}`;
+          const chat = model.startChat({
+            systemInstruction: getSystemInstruction(),
+            generationConfig: { responseMimeType: "application/json" }
+          });
+          const response = await withTimeout(chat.sendMessage(prompt));
+          const cleanedText = cleanJson(response.response.text());
+          return ensureResumeDataStructure(JSON.parse(cleanedText));
         });
-        const response = await chat.sendMessage(prompt);
-        const cleanedText = cleanJson(response.response.text());
-        result = ensureResumeDataStructure(JSON.parse(cleanedText));
         break;
       }
 
       case 'tailor': {
-        const prompt = `Tailor the following resume to this job description.\n\nResume: ${formatResumeAsText(payload.resumeData)}\n\nJob: ${payload.jobDescription}`;
-        const chat = model.startChat({
-          systemInstruction: getSystemInstruction(),
-          generationConfig: { responseMimeType: "application/json" }
+        result = await retryWithBackoff(async () => {
+          const prompt = `Tailor the following resume to this job description.\n\nResume: ${formatResumeAsText(payload.resumeData)}\n\nJob: ${payload.jobDescription}`;
+          const chat = model.startChat({
+            systemInstruction: getSystemInstruction(),
+            generationConfig: { responseMimeType: "application/json" }
+          });
+          const response = await withTimeout(chat.sendMessage(prompt));
+          const cleanedText = cleanJson(response.response.text());
+          return ensureResumeDataStructure(JSON.parse(cleanedText));
         });
-        const response = await chat.sendMessage(prompt);
-        const cleanedText = cleanJson(response.response.text());
-        result = ensureResumeDataStructure(JSON.parse(cleanedText));
         break;
       }
 
       case 'critique': {
-        const prompt = `Act as a nursing career coach and critique this resume. Return JSON with: overallFeedback (string), strengths (array), areasForImprovement (array), bulletPointImprovements (array of objects with original, improved, explanation).\n\n${formatResumeAsText(payload.resumeData)}`;
-        const chat = model.startChat({
-          generationConfig: { responseMimeType: "application/json" }
+        result = await retryWithBackoff(async () => {
+          const prompt = `Act as a nursing career coach and critique this resume. Return JSON with: overallFeedback (string), strengths (array), areasForImprovement (array), bulletPointImprovements (array of objects with original, improved, explanation).\n\n${formatResumeAsText(payload.resumeData)}`;
+          const chat = model.startChat({
+            generationConfig: { responseMimeType: "application/json" }
+          });
+          const response = await withTimeout(chat.sendMessage(prompt));
+          return JSON.parse(cleanJson(response.response.text()));
         });
-        const response = await chat.sendMessage(prompt);
-        result = JSON.parse(cleanJson(response.response.text()));
         break;
       }
 
       case 'matchScore': {
-        const prompt = `Compare this resume against the job description. Return JSON with: score (0-100), probability (Low/Medium/High), missingKeywords (array), criticalGaps (array), reasoning (string).\n\nResume: ${formatResumeAsText(payload.resumeData)}\n\nJob: ${payload.jobDescription}`;
-        const chat = model.startChat({
-          generationConfig: { responseMimeType: "application/json" }
+        result = await retryWithBackoff(async () => {
+          const prompt = `Compare this resume against the job description. Return JSON with: score (0-100), probability (Low/Medium/High), missingKeywords (array), criticalGaps (array), reasoning (string).\n\nResume: ${formatResumeAsText(payload.resumeData)}\n\nJob: ${payload.jobDescription}`;
+          const chat = model.startChat({
+            generationConfig: { responseMimeType: "application/json" }
+          });
+          const response = await withTimeout(chat.sendMessage(prompt));
+          return JSON.parse(cleanJson(response.response.text()));
         });
-        const response = await chat.sendMessage(prompt);
-        result = JSON.parse(cleanJson(response.response.text()));
         break;
       }
 
       case 'coverLetter': {
-        const details = payload.resumeData.coverLetterDetails || {};
-        const prompt = `Write a compelling cover letter for a Nurse.\n\nJob: ${payload.jobDescription}\n\nResume: ${formatResumeAsText(payload.resumeData)}\n\nRecipient: ${details.recipientName || 'Hiring Manager'}\nCompany: ${details.companyName || 'the Organization'}\n\nKeep it under 400 words. Return only the letter body.`;
-        const response = await model.generateContent(prompt);
-        result = { text: response.response.text() || "" };
+        result = await retryWithBackoff(async () => {
+          const details = payload.resumeData.coverLetterDetails || {};
+          const prompt = `Write a compelling cover letter for a Nurse.\n\nJob: ${payload.jobDescription}\n\nResume: ${formatResumeAsText(payload.resumeData)}\n\nRecipient: ${details.recipientName || 'Hiring Manager'}\nCompany: ${details.companyName || 'the Organization'}\n\nKeep it under 400 words. Return only the letter body.`;
+          const response = await withTimeout(model.generateContent(prompt));
+          return { text: response.response.text() || "" };
+        });
         break;
       }
 
       case 'optimizeSkills': {
-        const currentSkills = [...payload.resumeData.skills, ...payload.resumeData.softSkills].join(', ');
-        const prompt = `Identify 5-8 missing high-impact nursing skills for ${payload.level === 'new_grad' ? 'New Graduate RN' : payload.level === 'leadership' ? 'Nurse Manager' : 'Experienced Nurse'}. Current skills: ${currentSkills}. Return JSON with: newSkills (array), newSoftSkills (array).`;
-        const chat = model.startChat({
-          generationConfig: { responseMimeType: "application/json" }
+        result = await retryWithBackoff(async () => {
+          const currentSkills = [...payload.resumeData.skills, ...payload.resumeData.softSkills].join(', ');
+          const prompt = `Identify 5-8 missing high-impact nursing skills for ${payload.level === 'new_grad' ? 'New Graduate RN' : payload.level === 'leadership' ? 'Nurse Manager' : 'Experienced Nurse'}. Current skills: ${currentSkills}. Return JSON with: newSkills (array), newSoftSkills (array).`;
+          const chat = model.startChat({
+            generationConfig: { responseMimeType: "application/json" }
+          });
+          const response = await withTimeout(chat.sendMessage(prompt));
+          return JSON.parse(cleanJson(response.response.text()));
         });
-        const response = await chat.sendMessage(prompt);
-        result = JSON.parse(cleanJson(response.response.text()));
         break;
       }
 
@@ -277,7 +358,23 @@ export default async function handler(req, res) {
 
     return res.json(result);
   } catch (error) {
-    console.error('Gemini API Error:', error);
-    return res.status(500).json({ message: error.message });
+    console.error(`Gemini API Error [action: ${action}]:`, error);
+
+    // Provide user-friendly error messages
+    let errorMessage = error.message;
+
+    if (isRetryableError(error)) {
+      errorMessage = `The AI service is temporarily unavailable. We tried ${MAX_RETRIES + 1} times but couldn't complete your request. Please try again in a moment.`;
+    } else if (error.message.includes('timeout')) {
+      errorMessage = 'The request took too long to complete. Please try again with a shorter input or try again later.';
+    } else if (error.message.includes('API key')) {
+      errorMessage = 'Server configuration error: API key missing or invalid.';
+    }
+
+    return res.status(500).json({
+      message: errorMessage,
+      action: action,
+      retryable: isRetryableError(error)
+    });
   }
 }

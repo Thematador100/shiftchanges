@@ -54,25 +54,75 @@ export function ensureResumeDataStructure(data: any): ResumeData {
     };
 }
 
-// --- API Client ---
-async function callGemini(action: string, payload: any) {
-    const res = await fetch('/api/gemini', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action, payload }),
-    });
+// --- Client-side retry configuration ---
+const CLIENT_MAX_RETRIES = 2;
+const CLIENT_RETRY_DELAY = 2000; // 2 seconds
 
-    if (!res.ok) {
-        const text = await res.text();
+// Check if error should be retried on client side
+function shouldRetryOnClient(error: any, statusCode?: number): boolean {
+    // Retry on network errors or 5xx server errors
+    return (
+        !statusCode || // Network error (no response)
+        statusCode >= 500 || // Server errors
+        error?.message?.includes('fetch') ||
+        error?.message?.includes('network') ||
+        error?.message?.includes('Failed to fetch')
+    );
+}
+
+// Client-side retry wrapper
+async function retryFetch(fn: () => Promise<any>, retries = CLIENT_MAX_RETRIES): Promise<any> {
+    let lastError;
+
+    for (let attempt = 0; attempt <= retries; attempt++) {
         try {
-            const errorJson = JSON.parse(text);
-            throw new Error(errorJson.message || 'Server Error');
-        } catch {
-            throw new Error(`Connection failed: ${res.status} ${res.statusText}`);
+            return await fn();
+        } catch (error: any) {
+            lastError = error;
+
+            // Check if the error response indicates it's retryable
+            const isRetryable = error.retryable !== false && shouldRetryOnClient(error, error.status);
+
+            if (attempt === retries || !isRetryable) {
+                throw error;
+            }
+
+            // Wait before retrying with exponential backoff
+            const delay = CLIENT_RETRY_DELAY * Math.pow(2, attempt);
+            console.log(`Retrying Gemini request (attempt ${attempt + 1}/${retries}) in ${delay}ms...`);
+            await new Promise(resolve => setTimeout(resolve, delay));
         }
     }
 
-    return res.json();
+    throw lastError;
+}
+
+// --- API Client ---
+async function callGemini(action: string, payload: any) {
+    return retryFetch(async () => {
+        const res = await fetch('/api/gemini', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action, payload }),
+        });
+
+        if (!res.ok) {
+            const text = await res.text();
+            let errorData: any;
+            try {
+                errorData = JSON.parse(text);
+            } catch {
+                errorData = { message: `Connection failed: ${res.status} ${res.statusText}` };
+            }
+
+            const error: any = new Error(errorData.message || 'Server Error');
+            error.status = res.status;
+            error.retryable = errorData.retryable;
+            throw error;
+        }
+
+        return res.json();
+    });
 }
 
 export const generateResumeFromPrompt = async (prompt: string, level: CareerLevel) => {
