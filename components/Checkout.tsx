@@ -4,12 +4,12 @@ import { PackageTier } from '../types';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 
-// Retrieve Stripe key from runtime injection (window.env) or build process
+// Retrieve Stripe key from Vite environment variables
 const getStripeKey = () => {
     if (typeof window !== 'undefined' && window.env?.VITE_STRIPE_PUBLISHABLE_KEY) {
         return window.env.VITE_STRIPE_PUBLISHABLE_KEY;
     }
-    return process.env.VITE_STRIPE_PUBLISHABLE_KEY || '';
+    return import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || '';
 };
 
 // Initialize Stripe

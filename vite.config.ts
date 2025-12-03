@@ -7,8 +7,14 @@ export default defineConfig({
     outDir: 'dist',
     sourcemap: false
   },
-  define: {
-    'process.env.VITE_STRIPE_PUBLISHABLE_KEY': JSON.stringify(process.env.VITE_STRIPE_PUBLISHABLE_KEY || ''),
-    'process.env.VITE_API_KEY': JSON.stringify(process.env.VITE_API_KEY || '')
+  // Environment variables starting with VITE_ are automatically exposed via import.meta.env
+  // No need to manually define them - Vite handles this automatically
+  server: {
+    proxy: {
+      '/api': {
+        target: process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000',
+        changeOrigin: true,
+      }
+    }
   }
 })
