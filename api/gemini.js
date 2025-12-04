@@ -189,7 +189,7 @@ export default async function handler(req, res) {
     
     // --- PAYWALL ENFORCEMENT ---
     // Certain actions require a valid auth token (i.e., a paid subscription)
-    const paidActions = ['generate', 'improve', 'tailor', 'coverLetter', 'optimizeSkills'];
+    const paidActions = ['improve', 'tailor', 'coverLetter', 'optimizeSkills'];
     
     if (paidActions.includes(action)) {
       // User must provide a valid auth token
