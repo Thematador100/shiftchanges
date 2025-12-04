@@ -221,8 +221,10 @@ const App: React.FC = () => {
   }, [notification]);
 
   const handleGenerate = async (prompt: string, level: CareerLevel) => {
+    console.log('Attempting to generate resume with prompt:', prompt, 'level:', level);
     try {
         const newResume = await generateResumeFromPrompt(prompt, level, authToken);
+        console.log('Resume generated successfully.');
         setResumeData(newResume);
         setSelectedCareerLevel(level);
         setAppState('editor');

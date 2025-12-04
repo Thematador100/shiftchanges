@@ -80,6 +80,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGenerate, onImprove, on
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleGenerate = async () => {
+    console.log("handleGenerate called");
     if (!selectedLevel) {
         setError('Please select your career stage first.');
         return;
@@ -91,9 +92,12 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGenerate, onImprove, on
     setIsLoading(true);
     setError(null);
     try {
+      console.log("Calling onGenerate...");
       await onGenerate(generatePrompt, selectedLevel);
+      console.log("onGenerate completed successfully.");
     } catch (e) {
       const errorMsg = e instanceof Error ? e.message : 'An unknown error occurred.';
+      console.error("Error in handleGenerate:", errorMsg);
       setError(errorMsg);
     } finally {
       setIsLoading(false);
@@ -111,6 +115,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGenerate, onImprove, on
       await onImprove(improveText);
     } catch (e) {
       const errorMsg = e instanceof Error ? e.message : 'An unknown error occurred.';
+      console.error("Error in handleGenerate:", errorMsg);
       setError(errorMsg);
     } finally {
       setIsLoading(false);
@@ -423,7 +428,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGenerate, onImprove, on
                     onClick={handleGenerate} 
                     isLoading={isLoading} 
                     text={isLoading ? "Running Logic Protocols..." : "Architect My Resume"} 
-                    disabled={!selectedLevel || isLoading}
+                    disabled={!selectedLevel || !generatePrompt.trim() || isLoading}
                 />
             </div>
             )}
