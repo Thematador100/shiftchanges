@@ -53,8 +53,8 @@ const PaymentForm: React.FC<{
         const { error } = await stripe.confirmPayment({
             elements,
             confirmParams: {
-                // Return URL is required, but we handle success inline usually or via redirect
-                return_url: window.location.origin,
+                // Return URL with success parameters for thank you page
+                return_url: `${window.location.origin}?payment_success=true`,
             },
             redirect: "if_required", // Prevent redirect if possible to keep them in the SPA
         });

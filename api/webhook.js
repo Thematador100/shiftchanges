@@ -1,6 +1,7 @@
 import Stripe from 'stripe';
 import { grantUserAccess } from '../services/dbService.js';
 import { generateAuthToken } from '../services/authService.js';
+import { sendPaymentConfirmationEmail } from '../services/emailService.js';
 
 const STRIPE_KEY = (process.env.STRIPE_SECRET_KEY || '').trim();
 const WEBHOOK_SECRET = (process.env.STRIPE_WEBHOOK_SECRET || '').trim();
@@ -47,19 +48,33 @@ export default async function handler(req, res) {
       // CRITICAL: Grant user access to the purchased plan
       const userEmail = paymentIntent.receipt_email;
       const purchasedPlan = paymentIntent.metadata.plan;
+      const customerName = paymentIntent.metadata.customer_name || null;
+      const paymentAmount = paymentIntent.amount; // Amount in cents
       
       if (userEmail && purchasedPlan) {
           try {
-              await grantUserAccess(userEmail, purchasedPlan);
+              await grantUserAccess(userEmail, purchasedPlan, {
+                  customerName,
+                  paymentAmount,
+                  paymentIntentId: paymentIntent.id
+              });
               console.log(`User access granted for ${userEmail} to plan ${purchasedPlan}`);
               
               // Generate an auth token for the user
               const authToken = generateAuthToken(userEmail, purchasedPlan);
               console.log(`Auth token generated for ${userEmail}`);
               
-              // TODO: Send confirmation email with the auth token
-              // This would typically be done via a service like SendGrid or AWS SES
-              // The email should instruct the user to paste the token in the app to unlock features
+              // Send confirmation email with the auth token
+              const planNames = {
+                  'fast-ai': 'Fast Track',
+                  'ai-target': 'Targeted',
+                  'expert-clinical': 'Specialist',
+                  'leadership-np': 'Executive'
+              };
+              const planName = planNames[purchasedPlan] || purchasedPlan;
+              
+              await sendPaymentConfirmationEmail(userEmail, planName, authToken);
+              console.log(`Confirmation email sent to ${userEmail}`)
           } catch (dbError) {
               console.error(`Failed to grant access for ${userEmail}:`, dbError);
           }

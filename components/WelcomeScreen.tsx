@@ -67,9 +67,10 @@ interface WelcomeScreenProps {
   onManualEdit: () => void;
   onGoToCheckout: (plan: PackageTier) => void;
   onLogoClick?: () => void;
+  onLogin?: () => void;
 }
 
-const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGenerate, onImprove, onManualEdit, onGoToCheckout, onLogoClick }) => {
+const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGenerate, onImprove, onManualEdit, onGoToCheckout, onLogoClick, onLogin }) => {
   const [view, setView] = useState<'landing' | 'hub'>('landing');
   const [generatePrompt, setGeneratePrompt] = useState('');
   const [improveText, setImproveText] = useState('');
@@ -191,7 +192,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGenerate, onImprove, on
                     <div className="hidden md:flex gap-8 text-sm font-semibold text-slate-600">
                         <button onClick={() => scrollTo('problem')} className="hover:text-teal-600 transition-colors">Why It Works</button>
                         <button onClick={() => scrollTo('pricing')} className="hover:text-teal-600 transition-colors">Pricing</button>
-                        <button onClick={() => setView('hub')} className="hover:text-teal-600 transition-colors">Log In</button>
+                        <button onClick={onLogin} className="hover:text-teal-600 transition-colors">Log In</button>
                     </div>
                     <button onClick={() => setView('hub')} className="bg-slate-900 text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-slate-800 transition-colors shadow-lg shadow-slate-900/20">
                         Build My Resume

@@ -11,9 +11,11 @@ import CoverLetterPanel from './components/CoverLetterPanel';
 import LockScreen from './components/LockScreen';
 import SecurityModal from './components/SecurityModal';
 import NotFound from './components/NotFound';
+import ThankYou from './components/ThankYou';
+import LoginModal from './components/LoginModal';
 import { generateResumeFromPrompt, improveResumeFromText, pingServer, optimizeSkills } from './services/geminiService';
 
-type AppState = 'welcome' | 'editor' | 'checkout' | 'notFound';
+type AppState = 'welcome' | 'editor' | 'checkout' | 'thankYou' | 'notFound';
 type ActiveTab = 'preview' | 'critique' | 'tailor' | 'coverLetter';
 type ServerStatus = {
     status: 'checking' | 'ok' | 'error';
@@ -31,6 +33,7 @@ const App: React.FC = () => {
   const [hasPassword, setHasPassword] = useState(() => !!localStorage.getItem(PASSWORD_HASH_KEY));
   const [isLocked, setIsLocked] = useState(() => !!localStorage.getItem(PASSWORD_HASH_KEY));
   const [showSecurityModal, setShowSecurityModal] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   const [resumeData, setResumeData] = useState<ResumeData>(() => {
     try {
@@ -92,16 +95,16 @@ const App: React.FC = () => {
     const redirectStatus = query.get('redirect_status');
     const paymentIntent = query.get('payment_intent');
 
-    if (redirectStatus === 'succeeded' && paymentIntent) {
+    const paymentSuccess = query.get('payment_success');
+    
+    if ((redirectStatus === 'succeeded' && paymentIntent) || paymentSuccess === 'true') {
         // Success! Unlock features.
         // In a perfect world, we'd fetch the metadata from the server to know WHICH plan.
         // For now, we assume they bought the 'Targeted' plan at minimum or unlock based on logic.
         // We'll default to 'expert-clinical' to be safe and generous if we can't tell.
         setPurchasedPackage('expert-clinical');
-        setAppState('editor');
-        setNotification('Payment Verified. Account Unlocked.');
-        setNotificationType('success');
-
+        setAppState('thankYou');
+        
         // Clean URL
         window.history.replaceState({}, document.title, window.location.pathname);
     }
@@ -361,6 +364,18 @@ const App: React.FC = () => {
       setAppState('welcome');
   };
 
+  // --- Login Handler ---
+  const handleLoginSuccess = (authToken: string, planTier: string) => {
+    setAuthToken(authToken);
+    setPurchasedPackage(planTier as PackageTier);
+    localStorage.setItem(AUTH_TOKEN_KEY, authToken);
+    localStorage.setItem(PACKAGE_KEY, planTier);
+    setShowLoginModal(false);
+    setAppState('editor');
+    setNotification('Welcome back! You are now logged in.');
+    setNotificationType('success');
+  };
+
   if (isLocked) {
       return <LockScreen onUnlock={handleUnlock} onResetApp={handleResetApp} />;
   }
@@ -378,6 +393,7 @@ const App: React.FC = () => {
                 onManualEdit={handleManualEdit} 
                 onGoToCheckout={handleGoToCheckout} 
                 onLogoClick={handleLogoClick}
+                onLogin={() => setShowLoginModal(true)}
             />
             {/* Minimal Header for Welcome Screen to access security */}
             <div className="fixed top-4 right-4 z-50">
@@ -396,8 +412,28 @@ const App: React.FC = () => {
                 onPasswordRemoved={handlePasswordRemoved}
                 hasPassword={hasPassword}
             />
+            <LoginModal 
+                isOpen={showLoginModal}
+                onClose={() => setShowLoginModal(false)}
+                onLoginSuccess={handleLoginSuccess}
+            />
         </>
     );
+  }
+
+  if (appState === 'thankYou') {
+      const packageDetails: Record<PackageTier, string> = {
+        'none': 'None',
+        'fast-ai': 'Fast Track',
+        'ai-target': 'Targeted',
+        'expert-clinical': 'Specialist',
+        'leadership-np': 'Executive'
+      };
+      
+      return <ThankYou 
+                packageName={packageDetails[purchasedPackage]} 
+                onContinue={() => setAppState('editor')} 
+            />;
   }
 
   if (appState === 'checkout' && checkoutPlan) {
