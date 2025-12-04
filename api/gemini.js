@@ -210,8 +210,6 @@ export default async function handler(req, res) {
       }
     }
     
-    const { action, payload } = req.body;
-    
     if (action === 'ping' || action === 'critique' || action === 'matchScore') {
       // These actions are free (demo/preview features)
       if (action === 'ping') {
