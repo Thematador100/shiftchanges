@@ -1,4 +1,6 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { verifyAuthToken } from '../services/authService.js';
+import { checkUserAccess } from '../services/dbService.js';
 
 const GOOGLE_KEY = (process.env.API_KEY || process.env.GEMINI_API_KEY || '').trim();
 
@@ -181,17 +183,55 @@ export default async function handler(req, res) {
   }
 
   try {
+    const { action, payload, authToken } = req.body;
+    
+    // --- PAYWALL ENFORCEMENT ---
+    // Certain actions require a valid auth token (i.e., a paid subscription)
+    const paidActions = ['generate', 'improve', 'tailor', 'coverLetter', 'optimizeSkills'];
+    
+    if (paidActions.includes(action)) {
+      // User must provide a valid auth token
+      if (!authToken) {
+        return res.status(401).json({ message: 'Authentication required. Please purchase a plan to use this feature.' });
+      }
+      
+      // Verify the token
+      const decoded = verifyAuthToken(authToken);
+      if (!decoded) {
+        return res.status(401).json({ message: 'Invalid or expired authentication token.' });
+      }
+      
+      // Double-check in the database
+      const dbRecord = await checkUserAccess(decoded.email);
+      if (!dbRecord || !dbRecord.access_granted) {
+        return res.status(403).json({ message: 'Access has been revoked. Please contact support.' });
+      }
+    }
+    
     const { action, payload } = req.body;
+    
+    if (action === 'ping' || action === 'critique' || action === 'matchScore') {
+      // These actions are free (demo/preview features)
+      if (action === 'ping') {
+        return res.json({ status: 'ok' });
+      }
+      // For critique and matchScore, continue to process below
+    }
+
+    if (!GOOGLE_KEY && action !== 'ping') {
+      return res.status(500).json({ message: 'Server configuration error: API key missing.' });
+    }
     
     if (action === 'ping') {
       return res.json({ status: 'ok' });
     }
 
-    if (!GOOGLE_KEY) {
+    // For free actions, we may not need the API key
+    if (!GOOGLE_KEY && paidActions.includes(action)) {
       return res.status(500).json({ message: 'Server configuration error: API key missing.' });
     }
-
-    const genAI = new GoogleGenerativeAI(GOOGLE_KEY);
+    
+    const genAI = new GoogleGenerativeAI(GOOGLE_KEY || 'dummy-key');
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     let result;
@@ -233,7 +273,8 @@ export default async function handler(req, res) {
       }
 
       case 'critique': {
-        const prompt = `Act as a nursing career coach and critique this resume. Return JSON with: overallFeedback (string), strengths (array), areasForImprovement (array), bulletPointImprovements (array of objects with original, improved, explanation).\n\n${formatResumeAsText(payload.resumeData)}`;
+        // Free action - no auth required
+        const prompt = `Act as a nursing career coach and critique this resume. Return JSON with: overallFeedback (string), strengths (array), areasForImprovement (array), bulletPointImprovements (array of objects with original, improved, explanation)).\n\n${formatResumeAsText(payload.resumeData)}`;
         const chat = model.startChat({
           generationConfig: { responseMimeType: "application/json" }
         });
@@ -243,6 +284,7 @@ export default async function handler(req, res) {
       }
 
       case 'matchScore': {
+        // Free action - no auth required
         const prompt = `Compare this resume against the job description. Return JSON with: score (0-100), probability (Low/Medium/High), missingKeywords (array), criticalGaps (array), reasoning (string).\n\nResume: ${formatResumeAsText(payload.resumeData)}\n\nJob: ${payload.jobDescription}`;
         const chat = model.startChat({
           generationConfig: { responseMimeType: "application/json" }
@@ -272,12 +314,12 @@ export default async function handler(req, res) {
       }
 
       default:
-        return res.status(400).json({ message: 'Invalid action' });
+        return res.status(400).json({ message: 'Invalid action. Please check your request.' });
     }
 
     return res.json(result);
   } catch (error) {
     console.error('Gemini API Error:', error);
-    return res.status(500).json({ message: error.message });
+    return res.status(500).json({ message: 'An error occurred while processing your request. Please try again.' });
   }
 }

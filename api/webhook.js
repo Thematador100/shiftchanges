@@ -1,4 +1,6 @@
 import Stripe from 'stripe';
+import { grantUserAccess } from '../services/dbService.js';
+import { generateAuthToken } from '../services/authService.js';
 
 const STRIPE_KEY = (process.env.STRIPE_SECRET_KEY || '').trim();
 const WEBHOOK_SECRET = (process.env.STRIPE_WEBHOOK_SECRET || '').trim();
@@ -41,6 +43,30 @@ export default async function handler(req, res) {
     case 'payment_intent.succeeded':
       const paymentIntent = event.data.object;
       console.log('Payment succeeded:', paymentIntent.id);
+      
+      // CRITICAL: Grant user access to the purchased plan
+      const userEmail = paymentIntent.receipt_email;
+      const purchasedPlan = paymentIntent.metadata.plan;
+      
+      if (userEmail && purchasedPlan) {
+          try {
+              await grantUserAccess(userEmail, purchasedPlan);
+              console.log(`User access granted for ${userEmail} to plan ${purchasedPlan}`);
+              
+              // Generate an auth token for the user
+              const authToken = generateAuthToken(userEmail, purchasedPlan);
+              console.log(`Auth token generated for ${userEmail}`);
+              
+              // TODO: Send confirmation email with the auth token
+              // This would typically be done via a service like SendGrid or AWS SES
+              // The email should instruct the user to paste the token in the app to unlock features
+          } catch (dbError) {
+              console.error(`Failed to grant access for ${userEmail}:`, dbError);
+          }
+      } else {
+          console.error('Missing email or plan in payment intent metadata.');
+      }
+      
       // Add your business logic here (e.g., send confirmation email)
       break;
     default:

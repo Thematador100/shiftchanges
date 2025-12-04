@@ -24,6 +24,7 @@ type SaveStatus = 'idle' | 'saving' | 'saved';
 const LOCAL_STORAGE_KEY = 'nurse-resume-data';
 const PACKAGE_KEY = 'nurse-resume-package-tier';
 const PASSWORD_HASH_KEY = 'nurse-resume-password-hash';
+const AUTH_TOKEN_KEY = 'nurse-resume-auth-token';
 
 const App: React.FC = () => {
   // Authentication State
@@ -60,6 +61,15 @@ const App: React.FC = () => {
       return savedPkg || 'none';
     } catch (e) {
       return 'none';
+    }
+  });
+  
+  const [authToken, setAuthToken] = useState<string>(() => {
+    try {
+      const savedToken = localStorage.getItem(AUTH_TOKEN_KEY);
+      return savedToken || '';
+    } catch (e) {
+      return '';
     }
   });
   
@@ -190,6 +200,16 @@ const App: React.FC = () => {
       console.error("Could not save package status", e);
     }
   }, [purchasedPackage, isDevMode]);
+  
+  useEffect(() => {
+    try {
+      if (authToken) {
+        localStorage.setItem(AUTH_TOKEN_KEY, authToken);
+      }
+    } catch (e) {
+      console.error("Could not save auth token", e);
+    }
+  }, [authToken]);
 
   useEffect(() => {
     if (notification) {
@@ -202,7 +222,13 @@ const App: React.FC = () => {
 
   const handleGenerate = async (prompt: string, level: CareerLevel) => {
     try {
-        const newResume = await generateResumeFromPrompt(prompt, level);
+        if (!authToken) {
+            setNotification('Please purchase a plan to use this feature.');
+            setNotificationType('error');
+            handleGoToCheckout('fast-ai');
+            return;
+        }
+        const newResume = await generateResumeFromPrompt(prompt, level, authToken);
         setResumeData(newResume);
         setSelectedCareerLevel(level);
         setAppState('editor');
@@ -215,7 +241,13 @@ const App: React.FC = () => {
 
   const handleImprove = async (text: string) => {
     try {
-        const newResume = await improveResumeFromText(text);
+        if (!authToken) {
+            setNotification('Please purchase a plan to use this feature.');
+            setNotificationType('error');
+            handleGoToCheckout('fast-ai');
+            return;
+        }
+        const newResume = await improveResumeFromText(text, authToken);
         setResumeData(newResume);
         setAppState('editor');
     } catch (e) {
@@ -226,14 +258,16 @@ const App: React.FC = () => {
   };
 
   const handleOptimizeSkills = async () => {
-      if (!isPaidUser) {
+      if (!authToken) {
+          setNotification('Please purchase a plan to use this feature.');
+          setNotificationType('error');
           handleGoToCheckout('fast-ai');
           return;
       }
 
       setIsOptimizingSkills(true);
       try {
-          const { newSkills, newSoftSkills } = await optimizeSkills(resumeData, selectedCareerLevel);
+          const { newSkills, newSoftSkills } = await optimizeSkills(resumeData, selectedCareerLevel, authToken);
           setResumeData(prev => ({
               ...prev,
               skills: Array.from(new Set([...prev.skills, ...newSkills])),
@@ -261,9 +295,11 @@ const App: React.FC = () => {
     if (confirmStartOver) {
       localStorage.removeItem(LOCAL_STORAGE_KEY);
       localStorage.removeItem(PACKAGE_KEY);
+      localStorage.removeItem(AUTH_TOKEN_KEY);
       // NOTE: We do NOT remove the password here intentionally, unless reset from lock screen
       setResumeData(initialResumeData);
       setPurchasedPackage('none');
+      setAuthToken('');
       setIsDevMode(false); // Turn off dev mode on reset
       setAppState('welcome');
     }
@@ -274,8 +310,12 @@ const App: React.FC = () => {
     setAppState('checkout');
   };
   
-  const handlePurchase = (tier: PackageTier) => {
+  const handlePurchase = (tier: PackageTier, token?: string) => {
     setPurchasedPackage(tier);
+    if (token) {
+      setAuthToken(token);
+      localStorage.setItem(AUTH_TOKEN_KEY, token);
+    }
     setAppState('editor');
     setNotification('Access granted. Professional features unlocked.');
     setNotificationType('success');

@@ -55,11 +55,11 @@ export function ensureResumeDataStructure(data: any): ResumeData {
 }
 
 // --- API Client ---
-async function callGemini(action: string, payload: any) {
+async function callGemini(action: string, payload: any, authToken: string = '') {
     const res = await fetch('/api/gemini', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action, payload }),
+        body: JSON.stringify({ action, payload, authToken }),
     });
 
     if (!res.ok) {
@@ -75,36 +75,36 @@ async function callGemini(action: string, payload: any) {
     return res.json();
 }
 
-export const generateResumeFromPrompt = async (prompt: string, level: CareerLevel) => {
-    const result = await callGemini('generate', { prompt, level });
+export const generateResumeFromPrompt = async (prompt: string, level: CareerLevel, authToken: string) => {
+    const result = await callGemini('generate', { prompt, level }, authToken);
     return ensureResumeDataStructure(result);
 };
 
-export const improveResumeFromText = async (resumeText: string) => {
-    const result = await callGemini('improve', { resumeText });
+export const improveResumeFromText = async (resumeText: string, authToken: string) => {
+    const result = await callGemini('improve', { resumeText }, authToken);
     return ensureResumeDataStructure(result);
 };
 
-export const tailorResume = async (resumeData: ResumeData, jobDescription: string) => {
-    const result = await callGemini('tailor', { resumeData, jobDescription });
+export const tailorResume = async (resumeData: ResumeData, jobDescription: string, authToken: string) => {
+    const result = await callGemini('tailor', { resumeData, jobDescription }, authToken);
     return ensureResumeDataStructure(result);
 };
 
-export const critiqueResume = async (resumeData: ResumeData): Promise<CritiqueResponse> => {
-    return callGemini('critique', { resumeData });
+export const critiqueResume = async (resumeData: ResumeData, authToken: string = ''): Promise<CritiqueResponse> => {
+    return callGemini('critique', { resumeData }, authToken);
 };
 
-export const calculateMatchScore = async (resumeData: ResumeData, jobDescription: string): Promise<MatchScoreResponse> => {
-    return callGemini('matchScore', { resumeData, jobDescription });
+export const calculateMatchScore = async (resumeData: ResumeData, jobDescription: string, authToken: string = ''): Promise<MatchScoreResponse> => {
+    return callGemini('matchScore', { resumeData, jobDescription }, authToken);
 };
 
-export const generateCoverLetter = async (resumeData: ResumeData, jobDescription: string): Promise<string> => {
-    const result = await callGemini('coverLetter', { resumeData, jobDescription });
+export const generateCoverLetter = async (resumeData: ResumeData, jobDescription: string, authToken: string): Promise<string> => {
+    const result = await callGemini('coverLetter', { resumeData, jobDescription }, authToken);
     return result.text;
 };
 
-export const optimizeSkills = async (resumeData: ResumeData, level: CareerLevel) => {
-    return callGemini('optimizeSkills', { resumeData, level });
+export const optimizeSkills = async (resumeData: ResumeData, level: CareerLevel, authToken: string) => {
+    return callGemini('optimizeSkills', { resumeData, level }, authToken);
 };
 
 export const pingServer = async () => {

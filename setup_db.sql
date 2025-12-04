@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS user_access (
+  email TEXT PRIMARY KEY,
+  plan_tier TEXT NOT NULL,
+  access_granted BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);

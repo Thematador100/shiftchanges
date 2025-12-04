@@ -17,7 +17,7 @@ const stripePromise = loadStripe(getStripeKey());
 
 interface CheckoutProps {
   plan: PackageTier;
-  onPurchase: (tier: PackageTier) => void;
+  onPurchase: (tier: PackageTier, token?: string) => void;
   onBack: () => void;
 }
 
@@ -34,9 +34,10 @@ const PaymentForm: React.FC<{
     amount: number, 
     isLoading: boolean, 
     setIsLoading: (val: boolean) => void,
-    onSuccess: () => void,
-    onError: (msg: string) => void
-}> = ({ amount, isLoading, setIsLoading, onSuccess, onError }) => {
+    onSuccess: (authToken?: string) => void,
+    onError: (msg: string) => void,
+    email: string
+}> = ({ amount, isLoading, setIsLoading, onSuccess, onError, email }) => {
     const stripe = useStripe();
     const elements = useElements();
 
@@ -62,8 +63,25 @@ const PaymentForm: React.FC<{
             onError(error.message || "Payment failed");
             setIsLoading(false);
         } else {
-            // Payment succeeded
-            onSuccess();
+            // Payment succeeded - retrieve auth token
+            try {
+                const res = await fetch('/api/get-auth-token', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: email.trim() }),
+                });
+                
+                if (!res.ok) {
+                    const errorData = await res.json();
+                    throw new Error(errorData.message || 'Failed to retrieve authentication token.');
+                }
+                
+                const data = await res.json();
+                onSuccess(data.authToken);
+            } catch (err) {
+                onError(err instanceof Error ? err.message : 'Payment succeeded but failed to retrieve authentication token.');
+                setIsLoading(false);
+            }
         }
     };
 
@@ -171,11 +189,37 @@ const Checkout: React.FC<CheckoutProps> = ({ plan, onPurchase, onBack }) => {
         setIsLoading(true);
         setError(null);
 
+        // Validate email is provided
+        if (!email || !email.trim()) {
+            setError('Please enter your email address.');
+            setIsLoading(false);
+            return;
+        }
+
         // FREE or SIMULATION MODE
         if (isFree || !hasStripeKey) {
-            setTimeout(() => {
-                onPurchase(plan);
-            }, 1500);
+            // Retrieve auth token using email
+            try {
+                const res = await fetch('/api/get-auth-token', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: email.trim() }),
+                });
+                
+                if (!res.ok) {
+                    const errorData = await res.json();
+                    throw new Error(errorData.message || 'Failed to retrieve authentication token.');
+                }
+                
+                const data = await res.json();
+                
+                setTimeout(() => {
+                    onPurchase(plan, data.authToken);
+                }, 1500);
+            } catch (err) {
+                setError(err instanceof Error ? err.message : 'Failed to complete activation.');
+                setIsLoading(false);
+            }
             return;
         }
         
@@ -295,8 +339,9 @@ const Checkout: React.FC<CheckoutProps> = ({ plan, onPurchase, onBack }) => {
                                         amount={finalPrice} 
                                         isLoading={isLoading} 
                                         setIsLoading={setIsLoading}
-                                        onSuccess={() => onPurchase(plan)}
+                                        onSuccess={(authToken) => onPurchase(plan, authToken)}
                                         onError={(msg) => setError(msg)}
+                                        email={email}
                                     />
                                 </Elements>
                             ) : hasStripeKey ? (
@@ -312,7 +357,7 @@ const Checkout: React.FC<CheckoutProps> = ({ plan, onPurchase, onBack }) => {
                                         <p className="text-sm text-amber-800">Stripe keys are not configured in this environment. Proceeding with simulation.</p>
                                     </div>
 
-                                    <Input label="Email Address" id="email" placeholder="you@example.com" value={email} onChange={e => setEmail(e.target.value)} />
+                                    <Input label="Email Address" id="email" placeholder="you@example.com" value={email} onChange={e => setEmail(e.target.value)} required />
                                     <Input label="Cardholder Name" id="name" placeholder="Name as it appears on card" />
                                     
                                     <div className="p-4 border border-slate-300 rounded-lg bg-slate-50 text-slate-400 text-sm flex items-center justify-between">
@@ -341,13 +386,14 @@ const Checkout: React.FC<CheckoutProps> = ({ plan, onPurchase, onBack }) => {
     );
 };
 
-const Input: React.FC<{label: string, id: string, placeholder: string, value?: string, onChange?: (e:any)=>void}> = ({label, id, placeholder, value, onChange}) => (
+const Input: React.FC<{label: string, id: string, placeholder: string, value?: string, onChange?: (e:any)=>void, required?: boolean}> = ({label, id, placeholder, value, onChange, required}) => (
     <div>
         <label htmlFor={id} className="block text-sm font-bold text-slate-700 mb-1.5">{label}</label>
         <input 
             type="text" 
             id={id} 
-            name={id} 
+            name={id}
+            required={required} 
             placeholder={placeholder} 
             value={value}
             onChange={onChange}
