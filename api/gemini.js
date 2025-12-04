@@ -1,7 +1,8 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import OpenAI from 'openai';erative-ai";
 import { verifyAuthToken } from '../services/authService.js';
 import { checkUserAccess } from '../services/dbService.js';
 
+const DEEPSEEK_KEY = (process.env.DEEPSEEK_API_KEY || '').trim();
 const GOOGLE_KEY = (process.env.API_KEY || process.env.GEMINI_API_KEY || '').trim();
 
 function cleanJson(text) {
@@ -218,21 +219,127 @@ export default async function handler(req, res) {
       // For critique and matchScore, continue to process below
     }
 
-    if (!GOOGLE_KEY && action !== 'ping') {
-      return res.status(500).json({ message: 'Server configuration error: API key missing.' });
+    // Use DeepSeek if key is available, otherwise fallback to Gemini
+    const useDeepSeek = !!DEEPSEEK_KEY;
+    const apiKey = useDeepSeek ? DEEPSEEK_KEY : GOOGLE_KEY;
+    const modelName = useDeepSeek ? "deepseek-chat" : "gemini-1.5-flash";
+
+    if (!apiKey && action !== 'ping') {
+      return res.status(500).json({ message: 'Server configuration error: AI API key missing.' });
     }
     
     if (action === 'ping') {
       return res.json({ status: 'ok' });
     }
 
-    // For free actions, we may not need the API key
-    if (!GOOGLE_KEY && paidActions.includes(action)) {
-      return res.status(500).json({ message: 'Server configuration error: API key missing.' });
-    }
+    // Initialize the AI client
+    const client = new OpenAI({
+      apiKey: apiKey || 'dummy-key',
+      baseURL: useDeepSeek ? "https://api.deepseek.com/v1" : undefined, // OpenAI base URL is default
+    });
+
+    const systemInstruction = getSystemInstruction(payload?.level);
+    const messages = [{ role: "system", content: systemInstruction }];
     
-    const genAI = new GoogleGenerativeAI(GOOGLE_KEY || 'dummy-key');
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    let result;
+
+    switch (action) {
+      case 'generate': {
+        messages.push({ role: "user", content: payload.prompt });
+        const response = await client.chat.completions.create({
+          model: modelName,
+          messages: messages,
+          response_format: { type: "json_object" },
+        });
+        const cleanedText = cleanJson(response.choices[0].message.content);
+        result = ensureResumeDataStructure(JSON.parse(cleanedText));
+        break;
+      }
+      
+      case 'improve': {
+        const prompt = `Based on the following resume text, improve and restructure it into JSON format. Enhance the language to be more impactful. Resume:\n\n${payload.resumeText}`;
+        messages.push({ role: "user", content: prompt });
+        const response = await client.chat.completions.create({
+          model: modelName,
+          messages: messages,
+          response_format: { type: "json_object" },
+        });
+        const cleanedText = cleanJson(response.choices[0].message.content);
+        result = ensureResumeDataStructure(JSON.parse(cleanedText));
+        break;
+      }
+
+      case 'tailor': {
+        const prompt = `Tailor the following resume to this job description. Return the tailored resume in JSON format.\n\nResume: ${formatResumeAsText(payload.resumeData)}\n\nJob: ${payload.jobDescription}`;
+        messages.push({ role: "user", content: prompt });
+        const response = await client.chat.completions.create({
+          model: modelName,
+          messages: messages,
+          response_format: { type: "json_object" },
+        });
+        const cleanedText = cleanJson(response.choices[0].message.content);
+        result = ensureResumeDataStructure(JSON.parse(cleanedText));
+        break;
+      }
+
+      case 'critique': {
+        // Free action - no auth required
+        const prompt = `Act as a nursing career coach and critique this resume. Return JSON with: overallFeedback (string), strengths (array), areasForImprovement (array), bulletPointImprovements (array of objects with original, improved, explanation)).\n\n${formatResumeAsText(payload.resumeData)}`;
+        const messages_critique = [{ role: "system", content: "You are an expert nursing career coach and resume critic. Return ONLY the requested JSON structure." }];
+        messages_critique.push({ role: "user", content: prompt });
+        const response = await client.chat.completions.create({
+          model: modelName,
+          messages: messages_critique,
+          response_format: { type: "json_object" },
+        });
+        result = JSON.parse(cleanJson(response.choices[0].message.content));
+        break;
+      }
+
+      case 'matchScore': {
+        // Free action - no auth required
+        const prompt = `Compare this resume against the job description. Return JSON with: score (0-100), probability (Low/Medium/High), missingKeywords (array), criticalGaps (array), reasoning (string).\n\nResume: ${formatResumeAsText(payload.resumeData)}\n\nJob: ${payload.jobDescription}`;
+        const messages_match = [{ role: "system", content: "You are an expert ATS system simulator. Return ONLY the requested JSON structure." }];
+        messages_match.push({ role: "user", content: prompt });
+        const response = await client.chat.completions.create({
+          model: modelName,
+          messages: messages_match,
+          response_format: { type: "json_object" },
+        });
+        result = JSON.parse(cleanJson(response.choices[0].message.content));
+        break;
+      }
+
+      case 'coverLetter': {
+        const details = payload.resumeData.coverLetterDetails || {};
+        const prompt = `Write a compelling cover letter for a Nurse.\n\nJob: ${payload.jobDescription}\n\nResume: ${formatResumeAsText(payload.resumeData)}\n\nRecipient: ${details.recipientName || 'Hiring Manager'}\nCompany: ${details.companyName || 'the Organization'}\n\nKeep it under 400 words. Return only the letter body.`;
+        const messages_cover = [{ role: "system", content: "You are an expert cover letter writer. Return ONLY the letter body as plain text." }];
+        messages_cover.push({ role: "user", content: prompt });
+        const response = await client.chat.completions.create({
+          model: modelName,
+          messages: messages_cover,
+        });
+        result = { text: response.choices[0].message.content || "" };
+        break;
+      }
+
+      case 'optimizeSkills': {
+        const currentSkills = [...payload.resumeData.skills, ...payload.resumeData.softSkills].join(', ');
+        const prompt = `Identify 5-8 missing high-impact nursing skills for ${payload.level === 'new_grad' ? 'New Graduate RN' : payload.level === 'leadership' ? 'Nurse Manager' : 'Experienced Nurse'}. Current skills: ${currentSkills}. Return JSON with: newSkills (array), newSoftSkills (array).`;
+        const messages_optimize = [{ role: "system", content: "You are an expert ATS keyword optimizer. Return ONLY the requested JSON structure." }];
+        messages_optimize.push({ role: "user", content: prompt });
+        const response = await client.chat.completions.create({
+          model: modelName,
+          messages: messages_optimize,
+          response_format: { type: "json_object" },
+        });
+        result = JSON.parse(cleanJson(response.choices[0].message.content));
+        break;
+      }
+
+      default:
+        return res.status(400).json({ message: 'Invalid action. Please check your request.' });
+    }
 
     let result;
 

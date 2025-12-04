@@ -33,7 +33,7 @@ function getPool() {
  * @param {Array<any>} params - The parameters for the query.
  * @returns {Promise<import('pg').QueryResult>}
  */
-async function query(text, params) {
+export async function query(text, params) {
   const currentPool = getPool();
   if (!currentPool) {
     throw new Error("Database connection failed: DATABASE_URL is missing. Please set the environment variable.");
@@ -87,7 +87,7 @@ export async function grantUserAccess(email, plan) {
     SET plan_tier = $2, access_granted = TRUE;
   `;
   await query(upsertQuery, [email, plan]);
-  console.log(\`Access granted/updated for \${email} to plan: \${plan}\`);
+  console.log(`Access granted/updated for ${email} to plan: ${plan}`);
 }
 
 /**
