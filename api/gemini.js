@@ -225,7 +225,8 @@ export default async function handler(req, res) {
     const modelName = useDeepSeek ? "deepseek-chat" : "gemini-1.5-flash";
 
     if (!apiKey && action !== 'ping') {
-      return res.status(500).json({ message: 'Server configuration error: AI API key missing.' });
+      // Return a 400 error instead of 500 to prevent Vercel from masking the error
+      return res.status(400).json({ message: 'Server configuration error: AI API key missing. Please set DEEPSEEK_API_KEY or API_KEY in your Vercel environment variables.' });
     }
     
     if (action === 'ping') {
