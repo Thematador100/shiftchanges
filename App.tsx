@@ -222,49 +222,42 @@ const App: React.FC = () => {
 
   const handleGenerate = async (prompt: string, level: CareerLevel) => {
     try {
-        if (!authToken) {
-            setNotification('Please purchase a plan to use this feature.');
-            setNotificationType('error');
-            handleGoToCheckout('fast-ai');
-            return;
-        }
         const newResume = await generateResumeFromPrompt(prompt, level, authToken);
         setResumeData(newResume);
         setSelectedCareerLevel(level);
         setAppState('editor');
     } catch (e) {
         const msg = e instanceof Error ? e.message : 'Generation failed.';
-        setNotification(msg);
-        setNotificationType('error');
+        if (msg.includes('401') || msg.includes('Unauthorized') || msg.includes('authentication')) {
+            setNotification('Please purchase a plan to generate resumes.');
+            setNotificationType('error');
+            handleGoToCheckout('fast-ai');
+        } else {
+            setNotification(msg);
+            setNotificationType('error');
+        }
     }
   };
 
   const handleImprove = async (text: string) => {
     try {
-        if (!authToken) {
-            setNotification('Please purchase a plan to use this feature.');
-            setNotificationType('error');
-            handleGoToCheckout('fast-ai');
-            return;
-        }
         const newResume = await improveResumeFromText(text, authToken);
         setResumeData(newResume);
         setAppState('editor');
     } catch (e) {
         const msg = e instanceof Error ? e.message : 'Improvement failed.';
-        setNotification(msg);
-        setNotificationType('error');
+        if (msg.includes('401') || msg.includes('Unauthorized') || msg.includes('authentication')) {
+            setNotification('Please purchase a plan to improve resumes.');
+            setNotificationType('error');
+            handleGoToCheckout('fast-ai');
+        } else {
+            setNotification(msg);
+            setNotificationType('error');
+        }
     }
   };
 
   const handleOptimizeSkills = async () => {
-      if (!authToken) {
-          setNotification('Please purchase a plan to use this feature.');
-          setNotificationType('error');
-          handleGoToCheckout('fast-ai');
-          return;
-      }
-
       setIsOptimizingSkills(true);
       try {
           const { newSkills, newSoftSkills } = await optimizeSkills(resumeData, selectedCareerLevel, authToken);
@@ -277,8 +270,14 @@ const App: React.FC = () => {
           setNotificationType('success');
       } catch (e) {
           const msg = e instanceof Error ? e.message : "Failed to optimize skills.";
-          setNotification(msg);
-          setNotificationType('error');
+          if (msg.includes('401') || msg.includes('Unauthorized') || msg.includes('authentication')) {
+              setNotification('Please purchase a plan to optimize skills.');
+              setNotificationType('error');
+              handleGoToCheckout('fast-ai');
+          } else {
+              setNotification(msg);
+              setNotificationType('error');
+          }
       } finally {
           setIsOptimizingSkills(false);
       }

@@ -93,7 +93,8 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGenerate, onImprove, on
     try {
       await onGenerate(generatePrompt, selectedLevel);
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'An unknown error occurred.');
+      const errorMsg = e instanceof Error ? e.message : 'An unknown error occurred.';
+      setError(errorMsg);
     } finally {
       setIsLoading(false);
     }
@@ -109,7 +110,8 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGenerate, onImprove, on
     try {
       await onImprove(improveText);
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'An unknown error occurred.');
+      const errorMsg = e instanceof Error ? e.message : 'An unknown error occurred.';
+      setError(errorMsg);
     } finally {
       setIsLoading(false);
     }
@@ -421,7 +423,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGenerate, onImprove, on
                     onClick={handleGenerate} 
                     isLoading={isLoading} 
                     text={isLoading ? "Running Logic Protocols..." : "Architect My Resume"} 
-                    disabled={!selectedLevel}
+                    disabled={!selectedLevel || isLoading}
                 />
             </div>
             )}
@@ -458,7 +460,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGenerate, onImprove, on
                         />
                     </div>
                 </div>
-                <ActionButton onClick={handleImprove} isLoading={isLoading} text="Re-Engineer Resume" disabled={false} />
+                <ActionButton onClick={handleImprove} isLoading={isLoading} text="Re-Engineer Resume" disabled={isLoading} />
             </div>
             )}
             

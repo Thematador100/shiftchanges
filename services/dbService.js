@@ -2,21 +2,30 @@ import { Pool } from 'pg';
 
 // The connection string is read from the environment variable.
 // In a Vercel environment, this will be securely available to the serverless functions.
-const connectionString = process.env.DATABASE_URL;
+let pool;
 
-if (!connectionString) {
-  console.error("DATABASE_URL environment variable is not set.");
-  throw new Error("Database connection failed: DATABASE_URL is missing.");
+function getPool() {
+  if (pool) return pool;
+
+  const connectionString = process.env.DATABASE_URL;
+
+  if (!connectionString) {
+    console.error("DATABASE_URL environment variable is not set.");
+    // In a serverless environment, we can't throw here on import, 
+    // but we must throw when a database operation is attempted.
+    return null; 
+  }
+
+  // Create a connection pool for efficient database access
+  pool = new Pool({
+    connectionString,
+    // Neon requires SSL for connection
+    ssl: {
+      rejectUnauthorized: false,
+    },
+  });
+  return pool;
 }
-
-// Create a connection pool for efficient database access
-const pool = new Pool({
-  connectionString,
-  // Neon requires SSL for connection
-  ssl: {
-    rejectUnauthorized: false,
-  },
-});
 
 /**
  * Executes a generic SQL query.
@@ -25,7 +34,12 @@ const pool = new Pool({
  * @returns {Promise<import('pg').QueryResult>}
  */
 async function query(text, params) {
-  const client = await pool.connect();
+  const currentPool = getPool();
+  if (!currentPool) {
+    throw new Error("Database connection failed: DATABASE_URL is missing. Please set the environment variable.");
+  }
+  
+  const client = await currentPool.connect();
   try {
     const res = await client.query(text, params);
     return res;
