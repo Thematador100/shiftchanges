@@ -1,4 +1,5 @@
 import OpenAI from 'openai';
+// import { GoogleGenerativeAI } from "@google/generative-ai"; // Removed to prevent silent crash
 import { verifyAuthToken } from '../services/authService.js';
 import { checkUserAccess } from '../services/dbService.js';
 
