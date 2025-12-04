@@ -218,10 +218,10 @@ export default async function handler(req, res) {
       // For critique and matchScore, continue to process below
     }
 
-    // Use DeepSeek if key is available, otherwise fallback to Gemini
-    const useDeepSeek = !!DEEPSEEK_KEY;
-    const apiKey = useDeepSeek ? DEEPSEEK_KEY : GOOGLE_KEY;
-    const modelName = useDeepSeek ? "deepseek-chat" : "gemini-1.5-flash";
+    // Use DeepSeek as the primary AI provider
+    const apiKey = DEEPSEEK_KEY || GOOGLE_KEY;
+    const modelName = DEEPSEEK_KEY ? "deepseek-chat" : "gemini-1.5-flash";
+    const baseURL = DEEPSEEK_KEY ? "https://api.deepseek.com/v1" : "https://generativelanguage.googleapis.com/v1beta/openai/";
 
     if (!apiKey && action !== 'ping') {
       // Return a 400 error instead of 500 to prevent Vercel from masking the error
@@ -235,7 +235,7 @@ export default async function handler(req, res) {
     // Initialize the AI client
     const client = new OpenAI({
       apiKey: apiKey,
-      baseURL: useDeepSeek ? "https://api.deepseek.com/v1" : "https://api.gemini.com/v1", // Use Gemini base URL for fallback
+      baseURL: baseURL,
     });
 
     const systemInstruction = getSystemInstruction(payload?.level);
