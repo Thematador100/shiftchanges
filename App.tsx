@@ -235,6 +235,7 @@ const App: React.FC = () => {
             setNotificationType('error');
             handleGoToCheckout('fast-ai');
         } else {
+            console.error("API Error during operation:", e);
             setNotification(msg);
             setNotificationType('error');
         }
@@ -253,6 +254,7 @@ const App: React.FC = () => {
             setNotificationType('error');
             handleGoToCheckout('fast-ai');
         } else {
+            console.error("API Error during operation:", e);
             setNotification(msg);
             setNotificationType('error');
         }
@@ -277,6 +279,7 @@ const App: React.FC = () => {
               setNotificationType('error');
               handleGoToCheckout('fast-ai');
           } else {
+              console.error("API Error during operation:", e);
               setNotification(msg);
               setNotificationType('error');
           }
