@@ -1,4 +1,4 @@
-import OpenAI from 'openai';erative-ai";
+import OpenAI from 'openai';
 import { verifyAuthToken } from '../services/authService.js';
 import { checkUserAccess } from '../services/dbService.js';
 
@@ -235,8 +235,8 @@ export default async function handler(req, res) {
 
     // Initialize the AI client
     const client = new OpenAI({
-      apiKey: apiKey || 'dummy-key',
-      baseURL: useDeepSeek ? "https://api.deepseek.com/v1" : undefined, // OpenAI base URL is default
+      apiKey: apiKey,
+      baseURL: useDeepSeek ? "https://api.deepseek.com/v1" : "https://api.gemini.com/v1", // Use Gemini base URL for fallback
     });
 
     const systemInstruction = getSystemInstruction(payload?.level);
