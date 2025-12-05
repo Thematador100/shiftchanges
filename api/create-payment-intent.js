@@ -32,7 +32,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { plan, email, couponCode } = req.body;
+    const { plan, email, couponCode, addCoverLetter } = req.body;
     
     if (!packagePrices[plan]) {
       return res.status(400).json({ error: "Invalid plan selected" });
@@ -43,6 +43,12 @@ export default async function handler(req, res) {
     }
 
     let originalPrice = packagePrices[plan];
+    
+    // Add cover letter price if selected (only for plans that don't include it)
+    if (addCoverLetter && plan !== 'leadership-np') {
+      originalPrice += 7900; // $79 in cents
+    }
+    
     let finalAmount = originalPrice;
 
     if (couponCode && VALID_COUPONS[couponCode.toUpperCase()]) {
@@ -59,7 +65,12 @@ export default async function handler(req, res) {
       currency: "usd",
       automatic_payment_methods: { enabled: true },
       receipt_email: email,
-      metadata: { plan, coupon: couponCode || 'NONE' }
+      metadata: { 
+        plan, 
+        coupon: couponCode || 'NONE',
+        cover_letter: addCoverLetter ? 'yes' : 'no',
+        email: email || 'not_provided'
+      }
     });
 
     res.status(200).json({ 
