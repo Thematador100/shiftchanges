@@ -209,11 +209,11 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGenerate, onImprove, on
                             HR & Clinical Lead Approved
                         </div>
                         <h1 className="text-5xl lg:text-7xl font-extrabold font-brand tracking-tight text-slate-900 leading-[1.1]">
-                            Your Clinical Excellence. <br className="hidden md:block"/>
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-blue-600">Architected for HR.</span>
+                            Stop Being Invisible to <br className="hidden md:block"/>
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-blue-600">Hospital HR Systems.</span>
                         </h1>
                         <p className="mt-8 text-xl text-slate-600 leading-relaxed max-w-2xl mx-auto">
-                            The first resume engine built by Hospital HR Directors. We translate your bedside chaos into the risk-mitigation and competence language that secures interviews.
+                            You're an incredible nurse. But your resume makes you look generic. <strong className="text-slate-900">We fix that.</strong> Built by Hospital HR Directors who know exactly what Applicant Tracking Systems scan for—and what hiring managers actually read.
                         </p>
                         <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
                             <button onClick={() => setView('hub')} className="w-full sm:w-auto px-8 py-4 bg-teal-500 hover:bg-teal-400 text-white text-lg font-bold rounded-xl shadow-xl shadow-teal-500/20 transition-all transform hover:-translate-y-0.5">
@@ -239,21 +239,113 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGenerate, onImprove, on
                 </div>
             </main>
 
+            {/* ATS Reality Check - Critical Section */}
+            <section className="py-24 bg-gradient-to-br from-red-50 to-orange-50 border-y-4 border-red-300">
+                <div className="container mx-auto px-6">
+                    <div className="max-w-4xl mx-auto text-center mb-16">
+                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-red-100 border-2 border-red-300 text-red-700 text-sm font-bold uppercase tracking-wide mb-6 animate-pulse">
+                            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd"/></svg>
+                            Critical: 75% of Nurse Resumes Never Reach Human Eyes
+                        </div>
+                        <h2 className="text-4xl lg:text-6xl font-extrabold font-brand text-slate-900 mb-6">
+                            Your Resume is Dying in the ATS.
+                            <br/>
+                            <span className="text-red-600">Here's Why.</span>
+                        </h2>
+                        <p className="text-xl text-slate-700 leading-relaxed max-w-3xl mx-auto">
+                            Every major hospital system uses <strong>Applicant Tracking Systems (ATS)</strong> like Workday, Taleo, and iCIMS.
+                            These robots scan for keywords, formatting, and clinical metrics <strong className="text-red-600">before any recruiter sees your application.</strong>
+                        </p>
+                    </div>
+
+                    {/* ATS Demo Box */}
+                    <div className="max-w-5xl mx-auto bg-white rounded-2xl shadow-2xl border-4 border-red-200 overflow-hidden">
+                        <div className="bg-gradient-to-r from-red-600 to-orange-600 text-white p-6 text-center">
+                            <h3 className="text-2xl font-bold font-brand mb-2">Live ATS Scan Comparison</h3>
+                            <p className="text-red-100">See how the ATS "reads" your resume vs. what nurses typically submit</p>
+                        </div>
+
+                        <div className="grid md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-200">
+                            {/* FAIL Column */}
+                            <div className="p-8 bg-red-50/50">
+                                <div className="flex items-center justify-between mb-4">
+                                    <h4 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                                        <svg className="w-6 h-6 text-red-600" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd"/></svg>
+                                        Typical Nurse Resume
+                                    </h4>
+                                    <span className="px-3 py-1 bg-red-600 text-white text-xs font-bold rounded-full">ATS REJECTED</span>
+                                </div>
+                                <div className="bg-white p-6 rounded-lg border-2 border-red-300 mb-4 font-mono text-sm text-slate-600 leading-relaxed">
+                                    <p className="mb-3">• Provided nursing care to patients</p>
+                                    <p className="mb-3">• Administered medications as ordered</p>
+                                    <p className="mb-3">• Monitored vital signs</p>
+                                    <p className="mb-3">• Documented patient information in EMR</p>
+                                    <p>• Assisted with procedures</p>
+                                </div>
+                                <div className="bg-red-100 border border-red-300 rounded-lg p-4">
+                                    <p className="text-sm font-bold text-red-800 mb-2">ATS Score: 12/100</p>
+                                    <ul className="text-xs text-red-700 space-y-1">
+                                        <li>✗ No clinical metrics (ratios, outcomes)</li>
+                                        <li>✗ Missing equipment/device keywords</li>
+                                        <li>✗ No acuity indicators</li>
+                                        <li>✗ Generic task verbs</li>
+                                        <li>✗ Zero quantifiable achievements</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            {/* PASS Column */}
+                            <div className="p-8 bg-teal-50/50">
+                                <div className="flex items-center justify-between mb-4">
+                                    <h4 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                                        <svg className="w-6 h-6 text-teal-600" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/></svg>
+                                        ShiftChange Resume
+                                    </h4>
+                                    <span className="px-3 py-1 bg-teal-600 text-white text-xs font-bold rounded-full">ATS APPROVED</span>
+                                </div>
+                                <div className="bg-white p-6 rounded-lg border-2 border-teal-300 mb-4 font-mono text-sm text-slate-800 leading-relaxed font-medium">
+                                    <p className="mb-3">• Managed 2:1 high-acuity ICU caseload in 20-bed Level I Trauma unit (50+ beds facility-wide)</p>
+                                    <p className="mb-3">• Titrated vasoactive drips (Levophed, Vasopressin, Epinephrine) to MAP goals >65mmHg</p>
+                                    <p className="mb-3">• Achieved zero CLABSI events across 500+ central line days (facility rate: 1.2/1000)</p>
+                                    <p className="mb-3">• Proficient with CRRT, Impella, IABP, Swan-Ganz monitoring in critical MODS patients</p>
+                                    <p>• Precepted 8 new grad RNs; 100% retention through orientation period...</p>
+                                </div>
+                                <div className="bg-teal-100 border border-teal-300 rounded-lg p-4">
+                                    <p className="text-sm font-bold text-teal-800 mb-2">ATS Score: 94/100</p>
+                                    <ul className="text-xs text-teal-700 space-y-1">
+                                        <li>✓ Patient ratios & unit metrics present</li>
+                                        <li>✓ High-value device keywords (CRRT, Impella)</li>
+                                        <li>✓ Acuity indicators (Level I, MODS)</li>
+                                        <li>✓ Outcome quantification (zero CLABSI)</li>
+                                        <li>✓ Leadership evidence (preceptor role)</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="bg-gradient-to-r from-slate-900 to-slate-800 text-white p-8 text-center">
+                            <p className="text-lg font-bold mb-2">This is the difference between getting interviews and hearing nothing.</p>
+                            <p className="text-slate-300 text-sm">ShiftChange's AI extracts YOUR clinical metrics and formats them for ATS success—guaranteed.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             {/* The Problem / HR Insight Section */}
             <section id="problem" className="py-24 bg-slate-900 text-white relative overflow-hidden">
                 <div className="container mx-auto px-6 relative z-10">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
                         <div>
-                            <h2 className="text-3xl lg:text-5xl font-bold font-brand mb-6">The 6-Second Scan. <br/><span className="text-teal-400">You are failing it.</span></h2>
+                            <h2 className="text-3xl lg:text-5xl font-bold font-brand mb-6">The 6-Second Scan. <br/><span className="text-teal-400">Are you passing it?</span></h2>
                             <p className="text-lg text-slate-300 mb-6 leading-relaxed">
-                                I spent 15 years in Hospital HR. We don't read resumes. We scan for <strong className="text-white">Liability</strong> and <strong className="text-white">Competence</strong>.
+                                After 15 years working Hospital HR for major health systems, I'll tell you the truth: <strong className="text-white">We don't read resumes. We scan for Liability Risk and Competence Signals.</strong>
                             </p>
                             <p className="text-lg text-slate-300 mb-8 leading-relaxed">
-                                Most nurses write task lists: "Administered meds," "Charted in Epic." <br/>
-                                <span className="text-red-400 font-medium">This is fatal.</span> It frames you as a commodity.
+                                Most nurses write task lists like "Administered meds," "Charted in Epic," "Provided patient care." <br/>
+                                <span className="text-red-400 font-bold">This kills your application.</span> It makes you look replaceable—like every other applicant.
                             </p>
                             <p className="text-lg text-slate-300 leading-relaxed">
-                                <strong className="text-white">ShiftChange</strong> re-engineers your experience into assets: Acuity, Ratios, Outcomes, and Crisis Management. We don't just write a resume; we build a clinical business case for hiring you.
+                                <strong className="text-white">ShiftChange</strong> translates your clinical chaos into the metrics HR actually cares about: <strong className="text-teal-400">Acuity, Ratios, Safety Outcomes, Device Proficiency, and Crisis Management.</strong> We build a business case that says "This nurse will make our unit stronger, safer, and more profitable."
                             </p>
                         </div>
                         <div className="bg-slate-800 rounded-2xl p-8 border border-slate-700 shadow-2xl">
@@ -326,8 +418,9 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGenerate, onImprove, on
             <section id="pricing" className="py-24 bg-slate-50">
                 <div className="container mx-auto px-6">
                     <div className="text-center max-w-3xl mx-auto mb-16">
-                        <h2 className="text-3xl lg:text-5xl font-bold font-brand text-slate-900 mb-6">Investment Tiers</h2>
-                        <p className="text-xl text-slate-600">Choose the package aligned with your career stage. All tiers include lifetime access and unlimited revisions.</p>
+                        <h2 className="text-3xl lg:text-5xl font-bold font-brand text-slate-900 mb-6">Simple, Honest Pricing</h2>
+                        <p className="text-xl text-slate-600 mb-4">Choose the tier that matches where you are in your nursing career. <strong className="text-slate-900">Every tier includes 100% ATS compliance guarantee</strong>, unlimited revisions, and lifetime access to your resume.</p>
+                        <p className="text-base text-teal-600 font-semibold">One-time payment. No subscriptions. No hidden fees.</p>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
@@ -339,6 +432,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGenerate, onImprove, on
                                     <span className="text-5xl font-bold text-teal-600">$149</span>
                                 </div>
                                 <p className="text-sm text-slate-500 mt-2">Perfect for new graduates and career changers</p>
+                                <p className="text-xs text-teal-600 font-bold mt-1">Less than ONE shift • Lifetime access</p>
                             </div>
                             <ul className="space-y-3 mb-8">
                                 <PricingFeature text="Guaranteed ATS Compliance" />
@@ -358,16 +452,17 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGenerate, onImprove, on
                         </div>
 
                         {/* Bedside/Clinical Tier */}
-                        <div className="bg-white rounded-2xl shadow-xl border-2 border-teal-500 p-8 relative hover:shadow-2xl transition-shadow">
+                        <div className="bg-white rounded-2xl shadow-xl border-2 border-teal-500 p-8 relative hover:shadow-2xl transition-shadow transform scale-105">
                             <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-teal-500 text-white px-4 py-1 rounded-full text-sm font-bold">
-                                Most Popular
+                                MOST POPULAR
                             </div>
                             <div className="text-center mb-6">
                                 <h3 className="text-2xl font-bold text-slate-900 mb-2">Bedside/Clinical</h3>
                                 <div className="flex items-baseline justify-center gap-2">
                                     <span className="text-5xl font-bold text-teal-600">$299</span>
                                 </div>
-                                <p className="text-sm text-slate-500 mt-2">For experienced bedside nurses</p>
+                                <p className="text-sm text-slate-500 mt-2">For experienced bedside nurses (1-10+ years)</p>
+                                <p className="text-xs text-teal-600 font-bold mt-1">Your next raise pays for this 10x over</p>
                             </div>
                             <ul className="space-y-3 mb-8">
                                 <PricingFeature text="Everything in New Grad" />
@@ -394,7 +489,8 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGenerate, onImprove, on
                                 <div className="flex items-baseline justify-center gap-2">
                                     <span className="text-5xl font-bold text-teal-600">$499</span>
                                 </div>
-                                <p className="text-sm text-slate-500 mt-2">For managers and advanced practice</p>
+                                <p className="text-sm text-slate-500 mt-2">For Nurse Managers, Directors, and APRNs</p>
+                                <p className="text-xs text-teal-600 font-bold mt-1">Executive-level positioning • Cover letter included</p>
                             </div>
                             <ul className="space-y-3 mb-8">
                                 <PricingFeature text="Everything in Bedside/Clinical" />
