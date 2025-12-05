@@ -10,6 +10,30 @@ interface ResumeEditorProps {
   isPaidUser?: boolean;
 }
 
+// Suggestion lists for dropdowns
+const SKILL_SUGGESTIONS = [
+  'Patient Assessment', 'IV Insertion', 'Medication Administration', 'Wound Care',
+  'EPIC EHR', 'Cerner', 'Meditech', 'Critical Thinking', 'Patient Empathy',
+  'CRRT', 'Impella', 'IABP', 'ECMO', 'Ventilator Management', 'Telemetry Monitoring',
+  'Phlebotomy', 'Catheter Insertion', 'Tracheostomy Care', 'Chest Tube Management'
+];
+
+const CERTIFICATION_SUGGESTIONS = [
+  'BLS (Basic Life Support)', 'ACLS (Advanced Cardiovascular Life Support)',
+  'PALS (Pediatric Advanced Life Support)', 'NRP (Neonatal Resuscitation Program)',
+  'CCRN (Critical Care Registered Nurse)', 'CEN (Certified Emergency Nurse)',
+  'PCCN (Progressive Care Certified Nurse)', 'CMC (Cardiac Medicine Certification)',
+  'CNOR (Certified Nurse Operating Room)', 'RNC-OB (Inpatient Obstetric Nursing)',
+  'CMSRN (Medical-Surgical Registered Nurse)', 'OCN (Oncology Certified Nurse)'
+];
+
+const AWARD_SUGGESTIONS = [
+  'Daisy Award for Extraordinary Nurses', 'Employee of the Month',
+  'Excellence in Patient Care Award', 'Nurse of the Year',
+  'Outstanding Clinical Achievement', 'Patient Safety Champion',
+  'Magnet Recognition', 'Clinical Excellence Award'
+];
+
 const ResumeEditor: React.FC<ResumeEditorProps> = ({ resumeData, setResumeData, onOptimizeSkills, isOptimizing, isPaidUser }) => {
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
@@ -488,6 +512,7 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({ resumeData, setResumeData, 
             onAdd={() => addSimpleListItem('skills')}
             onRemove={(index) => removeSimpleListItem('skills', index)}
             placeholder="e.g. EPIC EHR"
+            suggestions={SKILL_SUGGESTIONS}
           />
       </Section>
       
@@ -499,6 +524,7 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({ resumeData, setResumeData, 
             onAdd={() => addSimpleListItem('softSkills')}
             onRemove={(index) => removeSimpleListItem('softSkills', index)}
             placeholder="e.g. Patient Empathy"
+            suggestions={SKILL_SUGGESTIONS}
           />
       </Section>
 
@@ -510,6 +536,7 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({ resumeData, setResumeData, 
             onRemove={(index) => removeListEntry('certifications', index)}
             placeholder="e.g. Critical Care Registered Nurse (CCRN)"
             addLabel="Add Certification"
+            suggestions={CERTIFICATION_SUGGESTIONS}
           />
       </Section>
 
@@ -521,6 +548,7 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({ resumeData, setResumeData, 
             onRemove={(index) => removeListEntry('awards', index)}
             placeholder="e.g. Daisy Award for Extraordinary Nurses"
             addLabel="Add Award"
+            suggestions={AWARD_SUGGESTIONS}
           />
       </Section>
       
@@ -587,9 +615,11 @@ interface SimpleListEditorProps {
     onAdd: () => void;
     onRemove: (index: number) => void;
     placeholder: string;
+    suggestions?: string[];
 }
 
-const SimpleListEditor: React.FC<SimpleListEditorProps> = ({ items, onChange, onReorder, onAdd, onRemove, placeholder }) => {
+const SimpleListEditor: React.FC<SimpleListEditorProps> = ({ items, onChange, onReorder, onAdd, onRemove, placeholder, suggestions }) => {
+    const [showSuggestions, setShowSuggestions] = useState<number | null>(null);
     const dragItem = useRef<number | null>(null);
     const dragOverItem = useRef<number | null>(null);
 
@@ -636,13 +666,25 @@ const SimpleListEditor: React.FC<SimpleListEditorProps> = ({ items, onChange, on
                     <div className="cursor-grab text-slate-300 hover:text-slate-500 active:cursor-grabbing p-2 rounded hover:bg-slate-100 transition-colors" title="Drag to reorder">
                         <GripVerticalIcon />
                     </div>
-                    <input
-                        type="text"
-                        placeholder={placeholder}
-                        value={item}
-                        onChange={(e) => onChange(index, e.target.value)}
-                        className="w-full text-base px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-                    />
+                    <div className="relative flex-1">
+                        <input
+                            type="text"
+                            placeholder={placeholder}
+                            value={item}
+                            onChange={(e) => onChange(index, e.target.value)}
+                            onFocus={() => setShowSuggestions(index)}
+                            onBlur={() => setTimeout(() => setShowSuggestions(null), 200)}
+                            list={suggestions ? `suggestions-${index}` : undefined}
+                            className="w-full text-base px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                        />
+                        {suggestions && (
+                            <datalist id={`suggestions-${index}`}>
+                                {suggestions.map((suggestion, i) => (
+                                    <option key={i} value={suggestion} />
+                                ))}
+                            </datalist>
+                        )}
+                    </div>
                     <button onClick={() => onRemove(index)} className="text-slate-400 hover:text-red-500 transition-colors flex-shrink-0">
                         <TrashIcon />
                     </button>
@@ -662,18 +704,29 @@ interface ListEntryEditorProps {
     onRemove: (index: number) => void;
     placeholder: string;
     addLabel: string;
+    suggestions?: string[];
 }
-const ListEntryEditor: React.FC<ListEntryEditorProps> = ({ items, onChange, onAdd, onRemove, placeholder, addLabel }) => (
+const ListEntryEditor: React.FC<ListEntryEditorProps> = ({ items, onChange, onAdd, onRemove, placeholder, addLabel, suggestions }) => (
     <div className="space-y-3">
         {items.map((item, index) => (
             <div key={item.id} className="flex items-center gap-2">
-                <input
-                    type="text"
-                    placeholder={placeholder}
-                    value={item.value}
-                    onChange={(e) => onChange(index, e.target.value)}
-                    className="w-full text-base px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-                />
+                <div className="relative flex-1">
+                    <input
+                        type="text"
+                        placeholder={placeholder}
+                        value={item.value}
+                        onChange={(e) => onChange(index, e.target.value)}
+                        list={suggestions ? `list-suggestions-${index}` : undefined}
+                        className="w-full text-base px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                    />
+                    {suggestions && (
+                        <datalist id={`list-suggestions-${index}`}>
+                            {suggestions.map((suggestion, i) => (
+                                <option key={i} value={suggestion} />
+                            ))}
+                        </datalist>
+                    )}
+                </div>
                 <button onClick={() => onRemove(index)} className="text-slate-400 hover:text-red-500 transition-colors flex-shrink-0">
                     <TrashIcon />
                 </button>
