@@ -64,8 +64,10 @@ export async function setupDatabase() {
       payment_amount INTEGER,
       payment_intent_id TEXT,
       access_granted BOOLEAN NOT NULL DEFAULT TRUE,
+      resume_data JSONB,
       created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-      last_login TIMESTAMP WITH TIME ZONE
+      last_login TIMESTAMP WITH TIME ZONE,
+      last_resume_update TIMESTAMP WITH TIME ZONE
     );
   `;
   try {
@@ -181,6 +183,38 @@ export async function updateLastLogin(email) {
   await query(updateQuery, [email]);
 }
 
+/**
+ * Saves resume data for a user
+ * @param {string} email - The user's email address
+ * @param {Object} resumeData - The resume data object
+ * @returns {Promise<void>}
+ */
+export async function saveResumeData(email, resumeData) {
+  const updateQuery = `
+    UPDATE user_access
+    SET resume_data = $2, last_resume_update = NOW()
+    WHERE email = $1;
+  `;
+  await query(updateQuery, [email, JSON.stringify(resumeData)]);
+  console.log(`Resume data saved for ${email}`);
+}
+
+/**
+ * Retrieves resume data for a user
+ * @param {string} email - The user's email address
+ * @returns {Promise<Object|null>} The resume data or null if not found
+ */
+export async function getResumeData(email) {
+  const selectQuery = `
+    SELECT resume_data
+    FROM user_access
+    WHERE email = $1;
+  `;
+  const res = await query(selectQuery, [email]);
+  if (res.rows.length === 0) return null;
+  return res.rows[0].resume_data;
+}
+
 // Call setup on service load (for serverless cold start)
 // Note: In a real deployment, this is often done via migrations, but for a simple app, this is sufficient.
 // setupDatabase();
@@ -194,4 +228,6 @@ export default {
   searchCustomers,
   updateUserAccess,
   updateLastLogin,
+  saveResumeData,
+  getResumeData,
 };

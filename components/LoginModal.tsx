@@ -4,7 +4,7 @@ import { X, Mail, LogIn } from 'lucide-react';
 interface LoginModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onLoginSuccess: (authToken: string, planTier: string) => void;
+  onLoginSuccess: (authToken: string, planTier: string, email: string) => void;
 }
 
 const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLoginSuccess }) => {

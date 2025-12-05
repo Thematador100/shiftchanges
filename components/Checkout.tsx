@@ -17,7 +17,7 @@ const stripePromise = loadStripe(getStripeKey());
 
 interface CheckoutProps {
   plan: PackageTier;
-  onPurchase: (tier: PackageTier, token?: string) => void;
+  onPurchase: (tier: PackageTier, token?: string, email?: string) => void;
   onBack: () => void;
 }
 
@@ -229,7 +229,7 @@ const Checkout: React.FC<CheckoutProps> = ({ plan, onPurchase, onBack }) => {
                 const data = await res.json();
                 
                 setTimeout(() => {
-                    onPurchase(plan, data.authToken);
+                    onPurchase(plan, data.authToken, email);
                 }, 1500);
             } catch (err) {
                 setError(err instanceof Error ? err.message : 'Failed to complete activation.');
@@ -373,7 +373,7 @@ const Checkout: React.FC<CheckoutProps> = ({ plan, onPurchase, onBack }) => {
                                         amount={finalPrice} 
                                         isLoading={isLoading} 
                                         setIsLoading={setIsLoading}
-                                        onSuccess={(authToken) => onPurchase(plan, authToken)}
+                                        onSuccess={(authToken) => onPurchase(plan, authToken, email)}
                                         onError={(msg) => setError(msg)}
                                         email={email}
                                     />

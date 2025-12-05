@@ -27,6 +27,7 @@ const LOCAL_STORAGE_KEY = 'nurse-resume-data';
 const PACKAGE_KEY = 'nurse-resume-package-tier';
 const PASSWORD_HASH_KEY = 'nurse-resume-password-hash';
 const AUTH_TOKEN_KEY = 'nurse-resume-auth-token';
+const USER_EMAIL_KEY = 'nurse-resume-user-email';
 
 const App: React.FC = () => {
   // Authentication State
@@ -71,6 +72,15 @@ const App: React.FC = () => {
     try {
       const savedToken = localStorage.getItem(AUTH_TOKEN_KEY);
       return savedToken || '';
+    } catch (e) {
+      return '';
+    }
+  });
+  
+  const [userEmail, setUserEmail] = useState<string>(() => {
+    try {
+      const savedEmail = localStorage.getItem(USER_EMAIL_KEY);
+      return savedEmail || '';
     } catch (e) {
       return '';
     }
@@ -177,9 +187,25 @@ const App: React.FC = () => {
     if (isLocked) return;
 
     setSaveStatus('saving');
-    saveTimeoutRef.current = window.setTimeout(() => {
+    saveTimeoutRef.current = window.setTimeout(async () => {
         try {
+            // Save to localStorage
             localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(resumeData));
+            
+            // Also save to database if user has email (logged in or purchased)
+            if (userEmail) {
+                try {
+                    await fetch('/api/save-resume', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email: userEmail, resumeData })
+                    });
+                } catch (dbError) {
+                    console.error('Could not save to database:', dbError);
+                    // Don't fail the whole save if database fails
+                }
+            }
+            
             setSaveStatus('saved');
             setTimeout(() => setSaveStatus('idle'), 2000);
         } catch (e) {
@@ -191,7 +217,7 @@ const App: React.FC = () => {
     return () => {
         if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
     };
-  }, [resumeData, isLocked]);
+  }, [resumeData, isLocked, userEmail]);
 
   useEffect(() => {
     try {
@@ -317,11 +343,15 @@ const App: React.FC = () => {
     setAppState('checkout');
   };
   
-  const handlePurchase = (tier: PackageTier, token?: string) => {
+  const handlePurchase = (tier: PackageTier, token?: string, email?: string) => {
     setPurchasedPackage(tier);
     if (token) {
       setAuthToken(token);
       localStorage.setItem(AUTH_TOKEN_KEY, token);
+    }
+    if (email) {
+      setUserEmail(email);
+      localStorage.setItem(USER_EMAIL_KEY, email);
     }
     setAppState('editor');
     setNotification('Access granted. Professional features unlocked.');
@@ -365,11 +395,29 @@ const App: React.FC = () => {
   };
 
   // --- Login Handler ---
-  const handleLoginSuccess = (authToken: string, planTier: string) => {
+  const handleLoginSuccess = async (authToken: string, planTier: string, email: string) => {
     setAuthToken(authToken);
     setPurchasedPackage(planTier as PackageTier);
+    setUserEmail(email);
     localStorage.setItem(AUTH_TOKEN_KEY, authToken);
     localStorage.setItem(PACKAGE_KEY, planTier);
+    localStorage.setItem(USER_EMAIL_KEY, email);
+    
+    // Load resume data from database
+    try {
+      const response = await fetch(`/api/load-resume?email=${encodeURIComponent(email)}`);
+      if (response.ok) {
+        const data = await response.json();
+        if (data.resumeData) {
+          setResumeData(data.resumeData);
+          localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(data.resumeData));
+        }
+      }
+    } catch (error) {
+      console.error('Could not load resume from database:', error);
+      // Continue anyway with local data
+    }
+    
     setShowLoginModal(false);
     setAppState('editor');
     setNotification('Welcome back! You are now logged in.');
