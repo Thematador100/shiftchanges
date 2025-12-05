@@ -15,6 +15,20 @@ import ThankYou from './components/ThankYou';
 import LoginModal from './components/LoginModal';
 import { generateResumeFromPrompt, improveResumeFromText, pingServer, optimizeSkills } from './services/geminiService';
 
+// Helper function to map career level to appropriate pricing tier
+const getPackageTierForCareerLevel = (careerLevel: CareerLevel): PackageTier => {
+  switch (careerLevel) {
+    case 'new_grad':
+      return 'fast-ai';
+    case 'experienced':
+      return 'ai-target';
+    case 'leadership':
+      return 'expert-clinical';
+    default:
+      return 'fast-ai';
+  }
+};
+
 type AppState = 'welcome' | 'editor' | 'checkout' | 'thankYou' | 'notFound';
 type ActiveTab = 'preview' | 'critique' | 'tailor' | 'coverLetter';
 type ServerStatus = {
@@ -262,7 +276,7 @@ const App: React.FC = () => {
         if (msg.includes('401') || msg.includes('Unauthorized') || msg.includes('authentication')) {
             setNotification('Please purchase a plan to generate resumes.');
             setNotificationType('error');
-            handleGoToCheckout('fast-ai');
+            handleGoToCheckout(getPackageTierForCareerLevel(level));
         } else {
             console.error("API Error during operation:", e);
             setNotification(msg);
@@ -281,7 +295,7 @@ const App: React.FC = () => {
         if (msg.includes('401') || msg.includes('Unauthorized') || msg.includes('authentication')) {
             setNotification('Please purchase a plan to improve resumes.');
             setNotificationType('error');
-            handleGoToCheckout('fast-ai');
+            handleGoToCheckout(getPackageTierForCareerLevel(selectedCareerLevel));
         } else {
             console.error("API Error during operation:", e);
             setNotification(msg);
@@ -306,7 +320,7 @@ const App: React.FC = () => {
           if (msg.includes('401') || msg.includes('Unauthorized') || msg.includes('authentication')) {
               setNotification('Please purchase a plan to optimize skills.');
               setNotificationType('error');
-              handleGoToCheckout('fast-ai');
+              handleGoToCheckout(getPackageTierForCareerLevel(selectedCareerLevel));
           } else {
               console.error("API Error during operation:", e);
               setNotification(msg);
@@ -472,15 +486,15 @@ const App: React.FC = () => {
   if (appState === 'thankYou') {
       const packageDetails: Record<PackageTier, string> = {
         'none': 'None',
-        'fast-ai': 'Fast Track',
-        'ai-target': 'Targeted',
-        'expert-clinical': 'Specialist',
-        'leadership-np': 'Executive'
+        'fast-ai': 'New Grad',
+        'ai-target': 'Bedside/Clinical',
+        'expert-clinical': 'Leadership/NP',
+        'leadership-np': 'Leadership/NP'
       };
-      
-      return <ThankYou 
-                packageName={packageDetails[purchasedPackage]} 
-                onContinue={() => setAppState('editor')} 
+
+      return <ThankYou
+                packageName={packageDetails[purchasedPackage]}
+                onContinue={() => setAppState('editor')}
             />;
   }
 
@@ -533,27 +547,27 @@ const App: React.FC = () => {
                 </div>
                 <div className="p-1 sm:p-2 md:p-6 min-h-[80vh] max-h-[80vh] overflow-y-auto relative print-no-scroll">
                     {activeTab === 'preview' && (
-                        <ResumePreview 
-                            resumeData={resumeData} 
+                        <ResumePreview
+                            resumeData={resumeData}
                             packageTier={purchasedPackage}
-                            onCheckout={() => handleGoToCheckout('ai-target')}
+                            onCheckout={() => handleGoToCheckout(getPackageTierForCareerLevel(selectedCareerLevel))}
                         />
                     )}
-                    {activeTab === 'critique' && 
-                        <CritiquePanel 
-                            resumeData={resumeData} 
+                    {activeTab === 'critique' &&
+                        <CritiquePanel
+                            resumeData={resumeData}
                             packageTier={purchasedPackage}
-                            onCheckout={() => handleGoToCheckout('fast-ai')}
+                            onCheckout={() => handleGoToCheckout(getPackageTierForCareerLevel(selectedCareerLevel))}
                             careerLevel={selectedCareerLevel}
                         />
                     }
                     {activeTab === 'tailor' && (
-                        <TailorPanel 
-                            resumeData={resumeData} 
+                        <TailorPanel
+                            resumeData={resumeData}
                             onResumeTailored={handleResumeTailored}
                             onSetNotification={(msg) => { setNotification(msg); setNotificationType('success'); }}
                             packageTier={purchasedPackage}
-                            onCheckout={() => handleGoToCheckout('ai-target')}
+                            onCheckout={() => handleGoToCheckout(getPackageTierForCareerLevel(selectedCareerLevel))}
                             // Pass shared state prop
                             jobDescription={sharedJobDescription}
                             onJobDescriptionChange={setSharedJobDescription}
@@ -565,7 +579,7 @@ const App: React.FC = () => {
                             jobDescription={sharedJobDescription}
                             onJobDescriptionChange={setSharedJobDescription}
                             packageTier={purchasedPackage}
-                            onCheckout={() => handleGoToCheckout('expert-clinical')}
+                            onCheckout={() => handleGoToCheckout(getPackageTierForCareerLevel(selectedCareerLevel))}
                         />
                     )}
                 </div>
@@ -589,8 +603,8 @@ const App: React.FC = () => {
                         <p className="text-xs text-slate-400">Your resume is not optimized for ATS or Hiring Managers.</p>
                     </div>
                 </div>
-                <button 
-                    onClick={() => handleGoToCheckout('ai-target')}
+                <button
+                    onClick={() => handleGoToCheckout(getPackageTierForCareerLevel(selectedCareerLevel))}
                     className="w-full sm:w-auto px-8 py-3 bg-teal-500 hover:bg-teal-400 text-white font-bold rounded-lg shadow-lg transition-colors uppercase tracking-wide text-sm"
                 >
                     Fix Issues & Unlock
