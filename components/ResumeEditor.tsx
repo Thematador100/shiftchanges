@@ -517,8 +517,8 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({ resumeData, setResumeData, 
       </Section>
       
       <Section title="Soft Skills" action={onOptimizeSkills ? <AtsButton /> : undefined}>
-          <SimpleListEditor 
-            items={resumeData.softSkills} 
+          <SimpleListEditor
+            items={resumeData.softSkills}
             onChange={(index, value) => handleSimpleListChange('softSkills', index, value)}
             onReorder={(newItems) => handleSimpleListReorder('softSkills', newItems)}
             onAdd={() => addSimpleListItem('softSkills')}
@@ -527,6 +527,67 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({ resumeData, setResumeData, 
             suggestions={SKILL_SUGGESTIONS}
           />
       </Section>
+
+      {/* ATS Keyword Preview for Free Users */}
+      {!isPaidUser && (
+        <div className="mb-6 p-6 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 border-2 border-indigo-200 rounded-xl relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-200/20 rounded-full -mr-16 -mt-16"></div>
+          <div className="absolute bottom-0 left-0 w-24 h-24 bg-purple-200/20 rounded-full -ml-12 -mb-12"></div>
+
+          <div className="relative">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-indigo-600" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                <h3 className="text-lg font-bold text-slate-900">ATS Keyword Preview</h3>
+              </div>
+              <span className="px-3 py-1 bg-amber-100 text-amber-800 text-xs font-bold rounded-full border border-amber-200 flex items-center gap-1">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+                </svg>
+                UPGRADE TO UNLOCK
+              </span>
+            </div>
+
+            <p className="text-sm text-slate-700 mb-4">
+              Our AI identifies high-impact keywords that hiring managers and ATS systems look for. Here's a preview of what we can add to your resume:
+            </p>
+
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mb-4">
+              {['Evidence-Based Practice', 'Clinical Outcomes', 'Patient Advocacy', 'Quality Metrics', 'Interdisciplinary Collaboration'].map((keyword, idx) => (
+                <div key={idx} className="flex items-center gap-2 p-2 bg-white/70 backdrop-blur-sm rounded-lg border border-indigo-100 shadow-sm">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-green-500 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <span className="text-xs font-semibold text-slate-700">{keyword}</span>
+                </div>
+              ))}
+              <div className="flex items-center justify-center gap-2 p-2 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg border-2 border-dashed border-purple-300">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-purple-600" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                  <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
+                </svg>
+                <span className="text-xs font-bold text-purple-700">+25 More</span>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-2 p-3 bg-white/50 backdrop-blur-sm rounded-lg border border-indigo-100">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-indigo-600 mt-0.5 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+              </svg>
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-slate-800 mb-1">Why ATS Keywords Matter</p>
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  Over <strong>75% of resumes</strong> are filtered by Applicant Tracking Systems before reaching human eyes.
+                  Our AI scans job descriptions and industry trends to identify the keywords that get you past these filters
+                  and into interviews.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <Section title="Certifications">
           <ListEntryEditor

@@ -13,6 +13,7 @@ import SecurityModal from './components/SecurityModal';
 import NotFound from './components/NotFound';
 import ThankYou from './components/ThankYou';
 import LoginModal from './components/LoginModal';
+import AdminDashboard from './components/AdminDashboard';
 import { generateResumeFromPrompt, improveResumeFromText, pingServer, optimizeSkills } from './services/geminiService';
 
 type AppState = 'welcome' | 'editor' | 'checkout' | 'thankYou' | 'notFound';
@@ -85,6 +86,8 @@ const App: React.FC = () => {
       return '';
     }
   });
+
+  const [showAdminDashboard, setShowAdminDashboard] = useState(false);
   
   const [serverStatus, setServerStatus] = useState<ServerStatus>({ status: 'checking' });
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
@@ -133,6 +136,20 @@ const App: React.FC = () => {
         }
     };
     checkServer();
+  }, []);
+
+  // --- KEYBOARD SHORTCUT FOR ADMIN DASHBOARD ---
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      // Ctrl+Shift+A (or Cmd+Shift+A on Mac) to open admin dashboard
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'A') {
+        e.preventDefault();
+        setShowAdminDashboard(prev => !prev);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
   }, []);
 
   // --- URL ROUTING CHECK (For 404 Handling) ---
@@ -599,13 +616,17 @@ const App: React.FC = () => {
         </div>
       )}
 
-      <SecurityModal 
+      <SecurityModal
         isOpen={showSecurityModal}
         onClose={() => setShowSecurityModal(false)}
         onPasswordSet={handlePasswordSet}
         onPasswordRemoved={handlePasswordRemoved}
         hasPassword={hasPassword}
       />
+
+      {showAdminDashboard && (
+        <AdminDashboard onClose={() => setShowAdminDashboard(false)} />
+      )}
     </div>
   );
 };
