@@ -134,10 +134,7 @@ const Checkout: React.FC<CheckoutProps> = ({ plan, onPurchase, onBack }) => {
         return () => clearTimeout(timer);
     }, []);
     
-    // Reset client secret when cover letter changes
-    useEffect(() => {
-        setClientSecret(null);
-    }, [addCoverLetter]);
+    // No longer need separate useEffect to reset - will be handled by main useEffect
 
     useEffect(() => {
         // If it's free, we don't need a PaymentIntent
@@ -153,7 +150,8 @@ const Checkout: React.FC<CheckoutProps> = ({ plan, onPurchase, onBack }) => {
                     body: JSON.stringify({ 
                         plan, 
                         email: email || 'guest@example.com', // Placeholder until they enter it
-                        couponCode: appliedCoupon?.code 
+                        couponCode: appliedCoupon?.code,
+                        addCoverLetter: addCoverLetter
                     }),
                 });
                 
@@ -171,7 +169,7 @@ const Checkout: React.FC<CheckoutProps> = ({ plan, onPurchase, onBack }) => {
         if(!clientSecret) {
             initPayment();
         }
-    }, [plan, appliedCoupon, hasStripeKey, isFree]);
+    }, [plan, appliedCoupon, addCoverLetter, hasStripeKey, isFree, clientSecret]);
 
     const handleApplyCoupon = async () => {
         if (!couponCode.trim()) return;
