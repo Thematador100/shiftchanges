@@ -13,9 +13,10 @@ import SecurityModal from './components/SecurityModal';
 import NotFound from './components/NotFound';
 import ThankYou from './components/ThankYou';
 import LoginModal from './components/LoginModal';
+import SalesDashboard from './components/SalesDashboard';
 import { generateResumeFromPrompt, improveResumeFromText, pingServer, optimizeSkills } from './services/geminiService';
 
-type AppState = 'welcome' | 'editor' | 'checkout' | 'thankYou' | 'notFound';
+type AppState = 'welcome' | 'editor' | 'checkout' | 'thankYou' | 'notFound' | 'salesDashboard';
 type ActiveTab = 'preview' | 'critique' | 'tailor' | 'coverLetter';
 type ServerStatus = {
     status: 'checking' | 'ok' | 'error';
@@ -140,12 +141,14 @@ const App: React.FC = () => {
     const path = window.location.pathname;
 
     // Define valid paths for the SPA
-    const validPaths = ['/', '/index.html'];
+    const validPaths = ['/', '/index.html', '/admin/sales'];
 
     // Check if current path is valid
     if (!validPaths.includes(path)) {
         // Invalid path detected - show 404
         setAppState('notFound');
+    } else if (path === '/admin/sales') {
+        setAppState('salesDashboard');
     }
   }, []);
 
@@ -484,11 +487,15 @@ const App: React.FC = () => {
             />;
   }
 
+  if (appState === 'salesDashboard') {
+      return <SalesDashboard />;
+  }
+
   if (appState === 'checkout' && checkoutPlan) {
-      return <Checkout 
-                plan={checkoutPlan} 
-                onPurchase={handlePurchase} 
-                onBack={() => setAppState(purchasedPackage !== 'none' ? 'editor' : 'welcome')} 
+      return <Checkout
+                plan={checkoutPlan}
+                onPurchase={handlePurchase}
+                onBack={() => setAppState(purchasedPackage !== 'none' ? 'editor' : 'welcome')}
             />;
   }
 
