@@ -42,7 +42,7 @@ const CritiquePanel: React.FC<CritiquePanelProps> = ({ resumeData, packageTier, 
   const getProtocolName = () => {
       switch(careerLevel) {
           case 'new_grad': return "New Grad Potential Protocol";
-          case 'leadership': return "Executive ROI Protocol";
+          case 'leadership': return "Leadership ROI Protocol";
           default: return "High-Acuity Clinical Protocol";
       }
   }

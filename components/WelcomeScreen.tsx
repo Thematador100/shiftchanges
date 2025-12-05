@@ -165,7 +165,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGenerate, onImprove, on
       switch(level) {
           case 'new_grad': return "Activating Potential Protocol: We will translate your clinical rotations and capstone hours into 'Professional Experience' and emphasize adaptability to overcome lack of tenure.";
           case 'experienced': return "Activating High-Acuity Protocol: We will focus on quantifiable outcomes, device mastery (CRRT, Impella), and patient ratios to prove 'Plug-and-Play' readiness.";
-          case 'leadership': return "Activating Executive ROI Protocol: We will strip task-based language and focus on fiscal responsibility, retention stats, regulatory success, and scope of control.";
+          case 'leadership': return "Activating Leadership ROI Protocol: We will strip task-based language and focus on fiscal responsibility, retention stats, regulatory success, and scope of control.";
       }
   }
 
@@ -358,7 +358,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGenerate, onImprove, on
                     />
                     <LevelCard 
                         title="Leadership / Admin" 
-                        subtitle="Executive ROI Protocol"
+                        subtitle="Leadership ROI Protocol"
                         isSelected={selectedLevel === 'leadership'}
                         onClick={() => selectLevel('leadership')}
                     />

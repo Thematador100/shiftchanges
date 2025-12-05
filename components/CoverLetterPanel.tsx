@@ -22,8 +22,8 @@ const CoverLetterPanel: React.FC<CoverLetterPanelProps> = ({
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Lock this feature to Executive / Leadership or Expert
-  const hasAccess = ['expert-clinical', 'leadership-np'].includes(packageTier);
+  // Lock this feature to Leadership/NP tier (which includes cover letter)
+  const hasAccess = ['expert-clinical'].includes(packageTier);
 
   const handleGenerate = async () => {
       if (!hasAccess) { onCheckout(); return; }
@@ -58,7 +58,7 @@ const CoverLetterPanel: React.FC<CoverLetterPanelProps> = ({
         <div className="absolute inset-0 bg-white/90 backdrop-blur-sm flex flex-col items-center justify-center z-20 rounded-lg p-6 text-center">
             <MailLockIcon />
             <h3 className="text-xl font-bold text-slate-800 mt-4">Cover Letter Studio Locked</h3>
-            <p className="text-slate-600 mt-2 mb-6">Upgrade to <strong>Specialist ($499)</strong> or add the <strong>Cover Letter add-on (+$79)</strong> to unlock the Narrative Bridge Engine.</p>
+            <p className="text-slate-600 mt-2 mb-6">Upgrade to <strong>Leadership/NP ($499)</strong> (includes cover letter) or add the <strong>Cover Letter add-on (+$79)</strong> to your current plan.</p>
             <button onClick={onCheckout} className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-lg font-medium rounded-full shadow-sm text-white bg-indigo-600 hover:bg-indigo-700">
                 Upgrade Now
             </button>

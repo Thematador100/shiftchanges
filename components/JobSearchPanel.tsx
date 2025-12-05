@@ -96,7 +96,7 @@ const TailorPanel: React.FC<TailorPanelProps> = ({
         <div className="absolute inset-0 bg-white/90 backdrop-blur-sm flex flex-col items-center justify-center z-20 rounded-lg p-6 text-center">
             <PremiumIcon />
             <h3 className="text-xl font-bold text-slate-800 mt-4">Predictive Analytics & Tailoring Locked</h3>
-            <p className="text-slate-600 mt-2 mb-6">Upgrade to <strong>Targeted ($299)</strong> or <strong>Specialist ($499)</strong> to unlock the Clinical Match Probability Engine.</p>
+            <p className="text-slate-600 mt-2 mb-6">Upgrade to <strong>Bedside/Clinical ($299)</strong> or <strong>Leadership/NP ($499)</strong> to unlock the Clinical Match Probability Engine.</p>
             <button onClick={onCheckout} className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-lg font-medium rounded-full shadow-sm text-white bg-blue-600 hover:bg-blue-700">
                 Upgrade Now
             </button>

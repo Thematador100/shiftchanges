@@ -23,10 +23,9 @@ interface CheckoutProps {
 
 const packageDetails: Record<PackageTier, { name: string; price: number; features: string[] }> = {
     'none': { name: 'None', price: 0, features: [] },
-    'fast-ai': { name: 'Fast Track', price: 149, features: ["Guaranteed ATS Compliance", "AI Architecture Engine", "Unlimited Revisions", "PDF & Word Output"] },
-    'ai-target': { name: 'Targeted', price: 299, features: ["Everything in Fast Track", "Clinical Match Probability Score", "Job Description Mapping", "Gap Analysis Engine"] },
-    'expert-clinical': { name: 'Specialist', price: 499, features: ["Everything in Targeted", "Clinical Outcome Extraction", "3 Specialty Variants", "Interview Prep Sheet"] },
-    'leadership-np': { name: 'Executive', price: 649, features: ["Full Leadership Portfolio", "Budget & Staffing Metrics", "LinkedIn Overhaul", "Cover Letter Suite"] },
+    'fast-ai': { name: 'New Grad', price: 149, features: ["Guaranteed ATS Compliance", "AI Architecture Engine", "Unlimited Revisions", "PDF & Word Output"] },
+    'ai-target': { name: 'Bedside/Clinical', price: 299, features: ["Everything in New Grad", "Clinical Match Probability Score", "Job Description Mapping", "Gap Analysis Engine"] },
+    'expert-clinical': { name: 'Leadership/NP', price: 499, features: ["Everything in Bedside/Clinical", "Clinical Outcome Extraction", "3 Specialty Variants", "Interview Prep Sheet", "Cover Letter Included"] },
 };
 
 // --- Internal Payment Form Component ---
@@ -278,8 +277,8 @@ const Checkout: React.FC<CheckoutProps> = ({ plan, onPurchase, onBack }) => {
                                         </div>
                                     )}
                                     
-                                    {/* Cover Letter Add-On */}
-                                    {showCoverLetterOffer && plan !== 'leadership-np' && (
+                    {/* Cover Letter Add-On */}
+                    {showCoverLetterOffer && plan !== 'expert-clinical' && (
                                         <div className="flex items-center justify-between py-4">
                                             <label className="flex items-start gap-3 cursor-pointer">
                                                 <input

@@ -45,7 +45,8 @@ export default async function handler(req, res) {
     let originalPrice = packagePrices[plan];
     
     // Add cover letter price if selected (only for plans that don't include it)
-    if (addCoverLetter && plan !== 'leadership-np') {
+    // Leadership/NP tier includes cover letter, so don't charge extra
+    if (addCoverLetter && plan !== 'expert-clinical') {
       originalPrice += 7900; // $79 in cents
     }
     

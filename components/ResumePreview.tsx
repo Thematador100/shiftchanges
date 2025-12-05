@@ -186,7 +186,7 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({ resumeData, packageTier, 
                 color="bg-blue-600"
              />
              <TemplateThumb 
-                label="Executive" 
+                label="Leadership" 
                 template="executive"
                 isActive={selectedTemplate === 'executive'} 
                 isLocked={!isPaidUser} 
@@ -235,7 +235,7 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({ resumeData, packageTier, 
                         <p className="text-slate-600 mb-6 text-sm">
                             The <strong>{selectedTemplate.charAt(0).toUpperCase() + selectedTemplate.slice(1)}</strong> design uses advanced typography and spacing optimized for higher-tier roles.
                             <br/><br/>
-                            Available in <strong>Targeted ($299)</strong>, <strong>Specialist ($499)</strong>, and <strong>Executive ($649)</strong> packages.
+                            Available in <strong>Bedside/Clinical ($299)</strong> and <strong>Leadership/NP ($499)</strong> packages.
                         </p>
                         <button onClick={onCheckout} className="w-full py-3 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-lg shadow-lg uppercase tracking-wide text-sm transition-colors">
                             Unlock {selectedTemplate.charAt(0).toUpperCase() + selectedTemplate.slice(1)} Design
