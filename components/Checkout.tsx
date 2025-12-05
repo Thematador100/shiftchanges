@@ -26,6 +26,7 @@ const packageDetails: Record<PackageTier, { name: string; price: number; feature
     'fast-ai': { name: 'New Grad', price: 149, features: ["Guaranteed ATS Compliance", "AI Architecture Engine", "Unlimited Revisions", "PDF & Word Output"] },
     'ai-target': { name: 'Bedside/Clinical', price: 299, features: ["Everything in New Grad", "Clinical Match Probability Score", "Job Description Mapping", "Gap Analysis Engine"] },
     'expert-clinical': { name: 'Leadership/NP', price: 499, features: ["Everything in Bedside/Clinical", "Clinical Outcome Extraction", "3 Specialty Variants", "Interview Prep Sheet", "Cover Letter Included"] },
+    'leadership-np': { name: 'Leadership/NP', price: 499, features: ["Everything in Bedside/Clinical", "Clinical Outcome Extraction", "3 Specialty Variants", "Interview Prep Sheet", "Cover Letter Included"] },
 };
 
 // --- Internal Payment Form Component ---
