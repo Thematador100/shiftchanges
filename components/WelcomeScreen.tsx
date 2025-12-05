@@ -313,7 +313,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGenerate, onImprove, on
                         <p className="text-xl text-slate-600">Choose the package aligned with your career stage. All tiers include lifetime access and unlimited revisions.</p>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
                         {/* New Grad Tier */}
                         <div className="bg-white rounded-2xl shadow-lg border-2 border-slate-200 p-8 hover:shadow-2xl transition-shadow">
                             <div className="text-center mb-6">
@@ -332,8 +332,8 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGenerate, onImprove, on
                                 <PricingFeature text="Clinical Rotation Translation" />
                                 <PricingFeature text="Lifetime Access" />
                             </ul>
-                            <button 
-                                onClick={() => onGoToCheckout('fast-ai')} 
+                            <button
+                                onClick={() => onGoToCheckout('fast-ai')}
                                 className="w-full py-3 bg-teal-500 hover:bg-teal-600 text-white font-bold rounded-lg transition-colors"
                             >
                                 Select New Grad
@@ -362,11 +362,38 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGenerate, onImprove, on
                                 <PricingFeature text="Device Mastery Highlighting" />
                                 <PricingFeature text="Premium Templates" />
                             </ul>
-                            <button 
-                                onClick={() => onGoToCheckout('ai-target')} 
+                            <button
+                                onClick={() => onGoToCheckout('ai-target')}
                                 className="w-full py-3 bg-teal-500 hover:bg-teal-600 text-white font-bold rounded-lg transition-colors"
                             >
                                 Select Bedside/Clinical
+                            </button>
+                        </div>
+
+                        {/* Expert/Clinical Tier */}
+                        <div className="bg-white rounded-2xl shadow-lg border-2 border-slate-200 p-8 hover:shadow-2xl transition-shadow">
+                            <div className="text-center mb-6">
+                                <h3 className="text-2xl font-bold text-slate-900 mb-2">Expert/Clinical</h3>
+                                <div className="flex items-baseline justify-center gap-2">
+                                    <span className="text-5xl font-bold text-teal-600">$499</span>
+                                </div>
+                                <p className="text-sm text-slate-500 mt-2">For specialty and advanced clinical roles</p>
+                            </div>
+                            <ul className="space-y-3 mb-8">
+                                <PricingFeature text="Everything in Bedside/Clinical" />
+                                <PricingFeature text="Clinical Outcome Extraction" />
+                                <PricingFeature text="3 Specialty Variants" />
+                                <PricingFeature text="Interview Prep Sheet" />
+                                <PricingFeature text="Cover Letter Included" />
+                                <PricingFeature text="Advanced Certification Highlighting" />
+                                <PricingFeature text="Research & Publication Integration" />
+                                <PricingFeature text="LinkedIn Profile Optimization" />
+                            </ul>
+                            <button
+                                onClick={() => onGoToCheckout('expert-clinical')}
+                                className="w-full py-3 bg-teal-500 hover:bg-teal-600 text-white font-bold rounded-lg transition-colors"
+                            >
+                                Select Expert/Clinical
                             </button>
                         </div>
 
@@ -375,22 +402,22 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGenerate, onImprove, on
                             <div className="text-center mb-6">
                                 <h3 className="text-2xl font-bold text-slate-900 mb-2">Leadership/NP</h3>
                                 <div className="flex items-baseline justify-center gap-2">
-                                    <span className="text-5xl font-bold text-teal-600">$499</span>
+                                    <span className="text-5xl font-bold text-teal-600">$649</span>
                                 </div>
                                 <p className="text-sm text-slate-500 mt-2">For managers and advanced practice</p>
                             </div>
                             <ul className="space-y-3 mb-8">
-                                <PricingFeature text="Everything in Bedside/Clinical" />
-                                <PricingFeature text="Clinical Outcome Extraction" />
-                                <PricingFeature text="3 Specialty Variants" />
-                                <PricingFeature text="Interview Prep Sheet" />
-                                <PricingFeature text="Cover Letter Included" />
+                                <PricingFeature text="Everything in Expert/Clinical" />
                                 <PricingFeature text="Leadership ROI Protocol" />
                                 <PricingFeature text="Budget & Staffing Metrics" />
-                                <PricingFeature text="LinkedIn Profile Optimization" />
+                                <PricingFeature text="Executive Summary Development" />
+                                <PricingFeature text="Strategic Initiative Highlighting" />
+                                <PricingFeature text="C-Suite Interview Prep" />
+                                <PricingFeature text="5 Specialty Variants" />
+                                <PricingFeature text="Priority Support" />
                             </ul>
-                            <button 
-                                onClick={() => onGoToCheckout('expert-clinical')} 
+                            <button
+                                onClick={() => onGoToCheckout('leadership-np')}
                                 className="w-full py-3 bg-teal-500 hover:bg-teal-600 text-white font-bold rounded-lg transition-colors"
                             >
                                 Select Leadership/NP
