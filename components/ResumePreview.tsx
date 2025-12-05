@@ -50,8 +50,8 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({ resumeData, packageTier, 
               return {
                   container: 'font-serif text-slate-900',
                   header: 'text-center border-b-2 border-slate-800 pb-6 mb-8',
-                  name: 'text-5xl font-serif font-bold tracking-tight text-slate-900',
-                  title: 'text-xl italic font-medium text-slate-600 mt-2',
+                  name: 'text-3xl sm:text-4xl md:text-5xl font-serif font-bold tracking-tight text-slate-900',
+                  title: 'text-lg sm:text-xl italic font-medium text-slate-600 mt-2',
                   sectionTitle: 'text-slate-900 border-slate-800',
                   jobTitle: 'font-bold text-slate-900',
                   accent: 'bg-slate-900'
@@ -59,9 +59,9 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({ resumeData, packageTier, 
           case 'modern':
               return {
                   container: 'font-sans text-slate-800',
-                  header: 'text-left border-l-4 border-teal-600 pl-6 mb-8',
-                  name: 'text-5xl font-extrabold tracking-tight text-slate-900',
-                  title: 'text-2xl font-bold text-teal-600 mt-1',
+                  header: 'text-left border-l-4 border-teal-600 pl-4 sm:pl-6 mb-8',
+                  name: 'text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-slate-900',
+                  title: 'text-xl sm:text-2xl font-bold text-teal-600 mt-1',
                   sectionTitle: 'text-teal-700 border-teal-200',
                   jobTitle: 'font-bold text-teal-700',
                   accent: 'bg-teal-600'
@@ -70,8 +70,8 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({ resumeData, packageTier, 
               return {
                   container: 'font-sans text-gray-800',
                   header: 'text-center border-b pb-6 border-gray-200 mb-8',
-                  name: 'text-4xl font-bold font-poppins text-gray-800',
-                  title: 'text-xl font-medium text-blue-700 mt-1',
+                  name: 'text-2xl sm:text-3xl md:text-4xl font-bold font-poppins text-gray-800',
+                  title: 'text-lg sm:text-xl font-medium text-blue-700 mt-1',
                   sectionTitle: 'text-blue-800 border-blue-200',
                   jobTitle: 'font-semibold text-gray-800',
                   accent: 'bg-blue-700'
@@ -247,10 +247,10 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({ resumeData, packageTier, 
                 </div>
             )}
 
-            <div 
-                id="resume-content" 
+            <div
+                id="resume-content"
                 onCopy={handleCopy}
-                className={`bg-white text-base leading-relaxed p-8 sm:p-12 relative overflow-hidden shadow-2xl ${styles.container} ${!isPaidUser ? 'select-none cursor-default' : ''}`}
+                className={`bg-white text-sm sm:text-base leading-relaxed p-4 sm:p-8 md:p-12 relative overflow-hidden shadow-2xl ${styles.container} ${!isPaidUser ? 'select-none cursor-default' : ''}`}
             >
                 {/* Internal Styles Injection for Dynamic Classes */}
                 <style>{`
@@ -277,14 +277,14 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({ resumeData, packageTier, 
                     <p className={styles.title}>{personalDetails.jobTitle}</p>
                     
                     {showContactInfo && (
-                        <div className={`flex justify-center items-center gap-x-4 gap-y-1 mt-3 text-sm text-gray-600 flex-wrap ${selectedTemplate === 'modern' ? 'justify-start' : ''}`}>
-                            <span>{personalDetails.email}</span>
+                        <div className={`flex justify-center items-center gap-x-3 gap-y-1 mt-3 text-xs sm:text-sm text-gray-600 flex-wrap ${selectedTemplate === 'modern' ? 'justify-start' : ''}`}>
+                            <span className="break-all">{personalDetails.email}</span>
                             <span className="hidden sm:inline text-slate-300">|</span>
-                            <span>{personalDetails.phone}</span>
+                            <span className="whitespace-nowrap">{personalDetails.phone}</span>
                             <span className="hidden sm:inline text-slate-300">|</span>
-                            <span>{personalDetails.location}</span>
+                            <span className="whitespace-nowrap">{personalDetails.location}</span>
                             <span className="hidden sm:inline text-slate-300">|</span>
-                            <span>{personalDetails.linkedin}</span>
+                            <span className="break-all">{personalDetails.linkedin}</span>
                         </div>
                     )}
                 </header>
