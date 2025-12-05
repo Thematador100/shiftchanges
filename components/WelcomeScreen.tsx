@@ -258,19 +258,36 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGenerate, onImprove, on
                         </div>
                         <div className="bg-slate-800 rounded-2xl p-8 border border-slate-700 shadow-2xl">
                              <div className="space-y-6">
-                                <ComparisonRow 
-                                    label="The Amateur (You?)" 
-                                    text="Provided care for ICU patients. Administered medications and monitored vitals."
+                                <ComparisonRow
+                                    label="Before: Generic Task List"
+                                    text="Provided nursing care for ICU patients. Administered medications and monitored vital signs. Assisted with patient procedures. Documented care in electronic health records."
                                     isBad
                                 />
                                 <div className="flex justify-center text-slate-500">
                                     <svg className="w-6 h-6 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" /></svg>
                                 </div>
-                                <ComparisonRow 
-                                    label="The ShiftChange Professional" 
-                                    text="Managed 2:1 high-acuity caseload in Level I Trauma ICU. Titrated multiple vasoactive drips (Levophed, Vaso) to MAP goals >65. Zero CLABSI events in 12 months."
+                                <ComparisonRow
+                                    label="After: Clinical Asset Profile"
+                                    text="Managed 2:1 high-acuity caseload in 18-bed Level I Trauma ICU. Titrated multiple vasoactive drips (Levophed, Vasopressin, Epinephrine) to MAP goals >65 while maintaining strict I&O protocols. Achieved zero CLABSI events across 500+ central line days. Precepted 8 new graduates..."
                                     isGood
                                 />
+                                <div className="h-px bg-slate-700 my-4"></div>
+                                <ComparisonRow
+                                    label="Before: Duties Without Impact"
+                                    text="Charge nurse responsibilities. Managed staffing. Led code blue responses. Ensured compliance with hospital policies."
+                                    isBad
+                                />
+                                <div className="flex justify-center text-slate-500">
+                                    <svg className="w-6 h-6 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" /></svg>
+                                </div>
+                                <ComparisonRow
+                                    label="After: Leadership ROI Evidence"
+                                    text="Led charge operations for 30-bed Medical-Surgical unit with 1:5-6 ratios. Coordinated rapid response team for 200+ bed facility, achieving 18% reduction in code blue escalations through early intervention protocols. Maintained 98% compliance with Joint Commission..."
+                                    isGood
+                                />
+                             </div>
+                             <div className="mt-6 pt-6 border-t border-slate-700">
+                                <p className="text-sm text-slate-400 text-center italic">These are abbreviated samples. Full ShiftChange profiles include 4-6 bullet points per role with complete metrics, equipment proficiency, and regulatory achievements.</p>
                              </div>
                         </div>
                     </div>
