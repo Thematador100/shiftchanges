@@ -1,0 +1,18 @@
+# Documentation and non-deployment files
+README.md
+*.md
+docs/
+.github/
+.git/
+.gitignore
+
+# Development files
+*.log
+*.test.js
+*.test.ts
+*.spec.js
+*.spec.ts
+
+# Environment examples
+.env.example
+.env.local.example
