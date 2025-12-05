@@ -21,11 +21,26 @@ interface CheckoutProps {
   onBack: () => void;
 }
 
-const packageDetails: Record<PackageTier, { name: string; price: number; features: string[] }> = {
-    'none': { name: 'None', price: 0, features: [] },
-    'fast-ai': { name: 'New Grad', price: 149, features: ["Guaranteed ATS Compliance", "AI Architecture Engine", "Unlimited Revisions", "PDF & Word Output"] },
-    'ai-target': { name: 'Bedside/Clinical', price: 299, features: ["Everything in New Grad", "Clinical Match Probability Score", "Job Description Mapping", "Gap Analysis Engine"] },
-    'expert-clinical': { name: 'Leadership/NP', price: 499, features: ["Everything in Bedside/Clinical", "Clinical Outcome Extraction", "3 Specialty Variants", "Interview Prep Sheet", "Cover Letter Included"] },
+const packageDetails: Record<PackageTier, { name: string; price: number; features: string[]; description: string }> = {
+    'none': { name: 'None', price: 0, features: [], description: '' },
+    'fast-ai': {
+        name: 'New Grad',
+        price: 149,
+        description: 'Perfect for new graduates and career changers',
+        features: ["Guaranteed ATS Compliance", "AI Architecture Engine", "Unlimited Revisions", "PDF & Word Output", "Clinical Rotation Translation"]
+    },
+    'ai-target': {
+        name: 'Bedside/Clinical',
+        price: 299,
+        description: 'For experienced bedside nurses (1-10+ years)',
+        features: ["Everything in New Grad", "Clinical Match Probability Score", "Job Description Mapping", "Gap Analysis Engine", "High-Acuity Protocol"]
+    },
+    'expert-clinical': {
+        name: 'Leadership/NP',
+        price: 499,
+        description: 'For Nurse Managers, Directors, and APRNs',
+        features: ["Everything in Bedside/Clinical", "Clinical Outcome Extraction", "3 Specialty Variants", "Interview Prep Sheet", "Cover Letter Included", "Leadership ROI Protocol"]
+    },
 };
 
 // --- Internal Payment Form Component ---
@@ -252,13 +267,15 @@ const Checkout: React.FC<CheckoutProps> = ({ plan, onPurchase, onBack }) => {
                     <div className="grid grid-cols-1 lg:grid-cols-2">
                         {/* Order Summary */}
                         <div className="p-8 md:p-12 bg-slate-900 text-white border-b lg:border-r lg:border-b-0">
-                            <h2 className="text-2xl font-bold font-brand mb-8">Investment Summary</h2>
+                            <h2 className="text-2xl font-bold font-brand mb-4">Investment Summary</h2>
+                            <p className="text-sm text-teal-300 mb-8">One-time payment • Lifetime access • No subscriptions</p>
                             <div className="flow-root">
                                 <div className="-my-4 divide-y divide-slate-700">
                                     <div className="flex items-center justify-between py-4">
                                         <div>
-                                            <p className="text-xl font-bold text-white">{details.name}</p>
-                                            <p className="text-sm text-slate-400">ShiftChange Professional Access</p>
+                                            <p className="text-xl font-bold text-white">{details.name} Tier</p>
+                                            <p className="text-sm text-slate-400">{details.description}</p>
+                                            <p className="text-xs text-teal-300 mt-1">100% ATS Compliance Guaranteed</p>
                                         </div>
                                         <p className="text-2xl font-bold text-teal-400">${details.price}</p>
                                     </div>
@@ -327,17 +344,52 @@ const Checkout: React.FC<CheckoutProps> = ({ plan, onPurchase, onBack }) => {
                                 </div>
                             </div>
 
+                            {/* Features Included */}
+                            <div className="mt-8 pt-6 border-t border-slate-700">
+                                <p className="text-sm font-bold text-slate-400 mb-4">What's Included:</p>
+                                <ul className="space-y-2">
+                                    {details.features.map((feature, index) => (
+                                        <li key={index} className="flex items-start gap-2 text-sm text-slate-300">
+                                            <svg className="w-4 h-4 text-teal-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
+                                            </svg>
+                                            {feature}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+
                             <div className="mt-8 pt-6 border-t border-slate-700 flex items-center justify-between">
-                                <p className="text-sm font-bold text-slate-400">Total Due</p>
+                                <p className="text-sm font-bold text-slate-400">Total Due Today</p>
                                 <p className="text-3xl font-bold text-white">${finalPrice}</p>
                             </div>
                         </div>
 
                         {/* Payment Form */}
                         <div className="p-8 md:p-12 relative">
-                            <h2 className="text-2xl font-bold font-brand text-slate-900 mb-6">
-                                {isFree ? "Complete Activation" : "Secure Transaction"}
+                            <h2 className="text-2xl font-bold font-brand text-slate-900 mb-2">
+                                {isFree ? "Complete Activation" : "Secure Payment"}
                             </h2>
+                            <p className="text-sm text-slate-500 mb-6">
+                                {isFree ? "Enter your email to activate your account" : "Protected by bank-level encryption • Powered by Stripe"}
+                            </p>
+
+                            {/* Email Input - Always Show */}
+                            {!isFree && (
+                                <div className="mb-6">
+                                    <label htmlFor="checkout-email" className="block text-sm font-bold text-slate-700 mb-2">Email Address</label>
+                                    <input
+                                        type="email"
+                                        id="checkout-email"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        placeholder="your.email@hospital.com"
+                                        required
+                                        className="w-full text-base px-4 py-3 border border-slate-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition bg-slate-50 focus:bg-white"
+                                    />
+                                    <p className="text-xs text-slate-500 mt-1">We'll send your resume and login details here</p>
+                                </div>
+                            )}
                             
                             {/* 
                                 LOGIC: 
@@ -356,10 +408,25 @@ const Checkout: React.FC<CheckoutProps> = ({ plan, onPurchase, onBack }) => {
                                         <h3 className="text-lg font-bold text-teal-900">100% Discount Applied</h3>
                                         <p className="text-teal-700 mt-2">No payment information is required.</p>
                                     </div>
-                                    <button 
-                                        type="submit" 
-                                        disabled={isLoading}
-                                        className="w-full bg-teal-600 text-white font-bold py-4 px-4 rounded-xl hover:bg-teal-500 transition-all text-lg shadow-lg"
+
+                                    <div>
+                                        <label htmlFor="free-email" className="block text-sm font-bold text-slate-700 mb-2">Email Address</label>
+                                        <input
+                                            type="email"
+                                            id="free-email"
+                                            value={email}
+                                            onChange={(e) => setEmail(e.target.value)}
+                                            placeholder="your.email@hospital.com"
+                                            required
+                                            className="w-full text-base px-4 py-3 border border-slate-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition bg-slate-50 focus:bg-white"
+                                        />
+                                        <p className="text-xs text-slate-500 mt-1">We'll send your login details here</p>
+                                    </div>
+
+                                    <button
+                                        type="submit"
+                                        disabled={isLoading || !email.trim()}
+                                        className="w-full bg-teal-600 text-white font-bold py-4 px-4 rounded-xl hover:bg-teal-500 transition-all text-lg shadow-lg disabled:bg-slate-300 disabled:cursor-not-allowed"
                                     >
                                         {isLoading ? 'Activating...' : 'Activate Account Now'}
                                     </button>
@@ -409,7 +476,51 @@ const Checkout: React.FC<CheckoutProps> = ({ plan, onPurchase, onBack }) => {
                                     </button>
                                 </form>
                             )}
+
+                            {/* Trust Badges */}
+                            {!isFree && (
+                                <div className="mt-8 pt-6 border-t border-slate-100">
+                                    <p className="text-xs text-slate-500 text-center mb-4 font-semibold">Your investment is protected:</p>
+                                    <div className="grid grid-cols-2 gap-4 text-center">
+                                        <div className="bg-slate-50 rounded-lg p-3">
+                                            <svg className="w-6 h-6 text-teal-600 mx-auto mb-1" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fillRule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
+                                            </svg>
+                                            <p className="text-xs font-bold text-slate-700">Bank-Level Security</p>
+                                        </div>
+                                        <div className="bg-slate-50 rounded-lg p-3">
+                                            <svg className="w-6 h-6 text-teal-600 mx-auto mb-1" fill="currentColor" viewBox="0 0 20 20">
+                                                <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"/>
+                                                <path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1V5a1 1 0 00-1-1H3zM14 7a1 1 0 00-1 1v6.05A2.5 2.5 0 0115.95 16H17a1 1 0 001-1v-5a1 1 0 00-.293-.707l-2-2A1 1 0 0015 7h-1z"/>
+                                            </svg>
+                                            <p className="text-xs font-bold text-slate-700">Instant Access</p>
+                                        </div>
+                                        <div className="bg-slate-50 rounded-lg p-3">
+                                            <svg className="w-6 h-6 text-teal-600 mx-auto mb-1" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd"/>
+                                            </svg>
+                                            <p className="text-xs font-bold text-slate-700">Unlimited Revisions</p>
+                                        </div>
+                                        <div className="bg-slate-50 rounded-lg p-3">
+                                            <svg className="w-6 h-6 text-teal-600 mx-auto mb-1" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
+                                            </svg>
+                                            <p className="text-xs font-bold text-slate-700">ATS Guaranteed</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
                         </div>
+                    </div>
+
+                    {/* Bottom Trust Bar */}
+                    <div className="bg-slate-50 border-t border-slate-200 px-8 py-6 text-center">
+                        <p className="text-sm text-slate-600 mb-2">
+                            <strong className="text-slate-900">Trusted by nurses at:</strong> Kaiser Permanente, HCA Healthcare, Mayo Clinic, Cleveland Clinic, Johns Hopkins, and 500+ health systems nationwide
+                        </p>
+                        <p className="text-xs text-slate-500">
+                            🔒 All payments processed securely through Stripe • We never store your payment information
+                        </p>
                     </div>
                 </div>
             </div>
