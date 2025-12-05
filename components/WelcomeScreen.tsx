@@ -305,49 +305,6 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGenerate, onImprove, on
                 </div>
             </section>
 
-             {/* Pricing */}
-             <section id="pricing" className="py-24 bg-slate-50 border-t border-slate-200">
-                <div className="container mx-auto px-6">
-                    <div className="text-center max-w-3xl mx-auto mb-16">
-                        <h2 className="text-3xl lg:text-4xl font-bold font-brand text-slate-900">Invest in Your Career Velocity</h2>
-                         <p className="mt-4 text-slate-600">One shift's pay for a career's worth of advancement.</p>
-                    </div>
-                    
-                    <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
-                        <PricingCard 
-                            title="Fast Track"
-                            price={149}
-                            desc="Standard Clinical Role"
-                            features={["Guaranteed ATS Compliance", "AI-Architected Resume", "Unlimited Revisions", "PDF & Word Output"]}
-                            action={() => onGoToCheckout('fast-ai')}
-                        />
-                        <PricingCard 
-                            title="Targeted"
-                            price={299}
-                            desc="Specific Job Pursuit"
-                            features={["Everything in Fast Track", "Clinical Match Probability Score", "Job Description Mapping", "Gap Analysis Engine"]}
-                            action={() => onGoToCheckout('ai-target')}
-                            isPopular
-                        />
-                         <PricingCard 
-                            title="Specialist"
-                            price={499}
-                            desc="ICU / OR / ED / PACU"
-                            features={["Everything in Targeted", "Clinical Outcome Extraction", "3 Specialty Variants", "Interview Prep Sheet"]}
-                            action={() => onGoToCheckout('expert-clinical')}
-                            isDark
-                        />
-                         <PricingCard 
-                            title="Executive"
-                            price={649}
-                            desc="Leadership & NP"
-                            features={["Full Leadership Portfolio", "Budget & Staffing Metrics", "LinkedIn Overhaul", "Cover Letter Suite"]}
-                            action={() => onGoToCheckout('leadership-np')}
-                        />
-                    </div>
-                </div>
-            </section>
-
             <footer className="bg-slate-900 text-slate-400 py-12 border-t border-slate-800">
                 <div className="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
                     <div className="flex items-center gap-2">

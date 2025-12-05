@@ -113,6 +113,8 @@ const Checkout: React.FC<CheckoutProps> = ({ plan, onPurchase, onBack }) => {
     const [appliedCoupon, setAppliedCoupon] = useState<{code: string, percentOff: number} | null>(null);
     const [isVerifyingCoupon, setIsVerifyingCoupon] = useState(false);
     const [email, setEmail] = useState('');
+    const [showCoverLetterOffer, setShowCoverLetterOffer] = useState(false);
+    const [addCoverLetter, setAddCoverLetter] = useState(false);
     
     // Check if we actually have Stripe Configured
     const stripeKey = getStripeKey();
@@ -121,9 +123,22 @@ const Checkout: React.FC<CheckoutProps> = ({ plan, onPurchase, onBack }) => {
     const details = packageDetails[plan];
     
     // UI Calculation Only (Real calculation happens on server)
+    const coverLetterPrice = 79;
     const discountAmount = appliedCoupon ? (details.price * (appliedCoupon.percentOff / 100)) : 0;
-    const finalPrice = Math.max(0, details.price - discountAmount);
+    const basePrice = Math.max(0, details.price - discountAmount);
+    const finalPrice = basePrice + (addCoverLetter ? coverLetterPrice : 0);
     const isFree = finalPrice === 0;
+    
+    // Show cover letter offer after 5 seconds
+    useEffect(() => {
+        const timer = setTimeout(() => setShowCoverLetterOffer(true), 5000);
+        return () => clearTimeout(timer);
+    }, []);
+    
+    // Reset client secret when cover letter changes
+    useEffect(() => {
+        setClientSecret(null);
+    }, [addCoverLetter]);
 
     useEffect(() => {
         // If it's free, we don't need a PaymentIntent
@@ -260,6 +275,25 @@ const Checkout: React.FC<CheckoutProps> = ({ plan, onPurchase, onBack }) => {
                                                 </p>
                                             </div>
                                             <p className="text-lg font-bold text-teal-300">-${discountAmount.toFixed(0)}</p>
+                                        </div>
+                                    )}
+                                    
+                                    {/* Cover Letter Add-On */}
+                                    {showCoverLetterOffer && plan !== 'leadership-np' && (
+                                        <div className="flex items-center justify-between py-4">
+                                            <label className="flex items-start gap-3 cursor-pointer">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={addCoverLetter}
+                                                    onChange={(e) => setAddCoverLetter(e.target.checked)}
+                                                    className="mt-1 h-4 w-4 text-teal-600 rounded focus:ring-teal-500"
+                                                />
+                                                <div>
+                                                    <p className="text-sm font-bold text-white">Add Cover Letter</p>
+                                                    <p className="text-xs text-slate-400">Professional cover letter tailored to your target role</p>
+                                                </div>
+                                            </label>
+                                            <p className="text-lg font-bold text-teal-400">+${coverLetterPrice}</p>
                                         </div>
                                     )}
                                 </div>
