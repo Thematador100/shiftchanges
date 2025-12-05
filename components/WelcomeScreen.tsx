@@ -305,6 +305,101 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGenerate, onImprove, on
                 </div>
             </section>
 
+            {/* Pricing Section */}
+            <section id="pricing" className="py-24 bg-slate-50">
+                <div className="container mx-auto px-6">
+                    <div className="text-center max-w-3xl mx-auto mb-16">
+                        <h2 className="text-3xl lg:text-5xl font-bold font-brand text-slate-900 mb-6">Investment Tiers</h2>
+                        <p className="text-xl text-slate-600">Choose the package aligned with your career stage. All tiers include lifetime access and unlimited revisions.</p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                        {/* New Grad Tier */}
+                        <div className="bg-white rounded-2xl shadow-lg border-2 border-slate-200 p-8 hover:shadow-2xl transition-shadow">
+                            <div className="text-center mb-6">
+                                <h3 className="text-2xl font-bold text-slate-900 mb-2">New Grad</h3>
+                                <div className="flex items-baseline justify-center gap-2">
+                                    <span className="text-5xl font-bold text-teal-600">$149</span>
+                                </div>
+                                <p className="text-sm text-slate-500 mt-2">Perfect for new graduates and career changers</p>
+                            </div>
+                            <ul className="space-y-3 mb-8">
+                                <PricingFeature text="Guaranteed ATS Compliance" />
+                                <PricingFeature text="AI Architecture Engine" />
+                                <PricingFeature text="Unlimited Revisions" />
+                                <PricingFeature text="PDF & Word Output" />
+                                <PricingFeature text="Potential Protocol Optimization" />
+                                <PricingFeature text="Clinical Rotation Translation" />
+                                <PricingFeature text="Lifetime Access" />
+                            </ul>
+                            <button 
+                                onClick={() => onGoToCheckout('fast-ai')} 
+                                className="w-full py-3 bg-teal-500 hover:bg-teal-600 text-white font-bold rounded-lg transition-colors"
+                            >
+                                Select New Grad
+                            </button>
+                        </div>
+
+                        {/* Bedside/Clinical Tier */}
+                        <div className="bg-white rounded-2xl shadow-xl border-2 border-teal-500 p-8 relative hover:shadow-2xl transition-shadow">
+                            <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-teal-500 text-white px-4 py-1 rounded-full text-sm font-bold">
+                                Most Popular
+                            </div>
+                            <div className="text-center mb-6">
+                                <h3 className="text-2xl font-bold text-slate-900 mb-2">Bedside/Clinical</h3>
+                                <div className="flex items-baseline justify-center gap-2">
+                                    <span className="text-5xl font-bold text-teal-600">$299</span>
+                                </div>
+                                <p className="text-sm text-slate-500 mt-2">For experienced bedside nurses</p>
+                            </div>
+                            <ul className="space-y-3 mb-8">
+                                <PricingFeature text="Everything in New Grad" />
+                                <PricingFeature text="Clinical Match Probability Score" />
+                                <PricingFeature text="Job Description Mapping" />
+                                <PricingFeature text="Gap Analysis Engine" />
+                                <PricingFeature text="High-Acuity Protocol" />
+                                <PricingFeature text="Outcome Quantification" />
+                                <PricingFeature text="Device Mastery Highlighting" />
+                                <PricingFeature text="Premium Templates" />
+                            </ul>
+                            <button 
+                                onClick={() => onGoToCheckout('ai-target')} 
+                                className="w-full py-3 bg-teal-500 hover:bg-teal-600 text-white font-bold rounded-lg transition-colors"
+                            >
+                                Select Bedside/Clinical
+                            </button>
+                        </div>
+
+                        {/* Leadership/NP Tier */}
+                        <div className="bg-white rounded-2xl shadow-lg border-2 border-slate-200 p-8 hover:shadow-2xl transition-shadow">
+                            <div className="text-center mb-6">
+                                <h3 className="text-2xl font-bold text-slate-900 mb-2">Leadership/NP</h3>
+                                <div className="flex items-baseline justify-center gap-2">
+                                    <span className="text-5xl font-bold text-teal-600">$499</span>
+                                </div>
+                                <p className="text-sm text-slate-500 mt-2">For managers and advanced practice</p>
+                            </div>
+                            <ul className="space-y-3 mb-8">
+                                <PricingFeature text="Everything in Bedside/Clinical" />
+                                <PricingFeature text="Clinical Outcome Extraction" />
+                                <PricingFeature text="3 Specialty Variants" />
+                                <PricingFeature text="Interview Prep Sheet" />
+                                <PricingFeature text="Cover Letter Included" />
+                                <PricingFeature text="Leadership ROI Protocol" />
+                                <PricingFeature text="Budget & Staffing Metrics" />
+                                <PricingFeature text="LinkedIn Profile Optimization" />
+                            </ul>
+                            <button 
+                                onClick={() => onGoToCheckout('expert-clinical')} 
+                                className="w-full py-3 bg-teal-500 hover:bg-teal-600 text-white font-bold rounded-lg transition-colors"
+                            >
+                                Select Leadership/NP
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             <footer className="bg-slate-900 text-slate-400 py-12 border-t border-slate-800">
                 <div className="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
                     <div className="flex items-center gap-2">
@@ -446,6 +541,13 @@ const ShiftLogo = ({ className }: { className?: string }) => (
         <path d="M9.4 21.8c.6.4 1.4.2 1.8-.4l4-6c.3-.5.3-1.1 0-1.6l-4-6c-.4-.6-1.2-.8-1.8-.4-.6.4-.8 1.2-.4 1.8l3.2 4.8-3.2 4.8c-.4.6-.2 1.4.4 1.8z"/>
     </svg>
 )
+
+const PricingFeature: React.FC<{ text: string }> = ({ text }) => (
+    <li className="flex items-start gap-3">
+        <CheckIcon className="h-5 w-5 text-teal-600 flex-shrink-0 mt-0.5" />
+        <span className="text-slate-700">{text}</span>
+    </li>
+);
 
 const ComparisonRow: React.FC<{ label: string, text: string, isGood?: boolean, isBad?: boolean }> = ({ label, text, isGood, isBad }) => (
     <div className={`p-4 rounded-lg border ${isGood ? 'bg-teal-900/30 border-teal-700/50' : 'bg-red-900/20 border-red-800/30'}`}>
