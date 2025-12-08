@@ -59,22 +59,22 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({ resumeData, packageTier, 
           case 'modern':
               return {
                   container: 'font-sans text-slate-800',
-                  header: 'text-left border-l-4 border-teal-600 pl-6 mb-8',
+                  header: 'text-left border-l-4 border-slate-900 pl-6 mb-8',
                   name: 'text-5xl font-extrabold tracking-tight text-slate-900',
-                  title: 'text-2xl font-bold text-teal-600 mt-1',
-                  sectionTitle: 'text-teal-700 border-teal-200',
-                  jobTitle: 'font-bold text-teal-700',
-                  accent: 'bg-teal-600'
+                  title: 'text-2xl font-bold text-slate-700 mt-1',
+                  sectionTitle: 'text-slate-900 border-slate-200',
+                  jobTitle: 'font-bold text-slate-900',
+                  accent: 'bg-slate-900'
               };
           default: // standard
               return {
                   container: 'font-sans text-gray-800',
                   header: 'text-center border-b pb-6 border-gray-200 mb-8',
-                  name: 'text-4xl font-bold font-poppins text-gray-800',
-                  title: 'text-xl font-medium text-blue-700 mt-1',
-                  sectionTitle: 'text-blue-800 border-blue-200',
-                  jobTitle: 'font-semibold text-gray-800',
-                  accent: 'bg-blue-700'
+                  name: 'text-4xl font-bold text-gray-900',
+                  title: 'text-xl font-medium text-slate-700 mt-1',
+                  sectionTitle: 'text-slate-900 border-slate-200',
+                  jobTitle: 'font-semibold text-gray-900',
+                  accent: 'bg-slate-900'
               };
       }
   };
