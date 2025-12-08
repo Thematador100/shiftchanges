@@ -53,7 +53,7 @@ You need to collect these keys and add them to Vercel:
 
 1. Go to Stripe Dashboard > Developers > Webhooks
 2. Click **Add endpoint**
-3. Enter: `https://yourdomain.vercel.app/api/webhook`
+3. Enter: `https://shiftchangess.vercel.app/api/webhook`
 4. Select events: `payment_intent.succeeded`, `payment_intent.payment_failed`, `charge.refunded`
 5. Copy the signing secret and add it as `STRIPE_WEBHOOK_SECRET` in Vercel
 

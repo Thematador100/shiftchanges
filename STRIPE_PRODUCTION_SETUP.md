@@ -77,7 +77,7 @@ Set these environment variables in your hosting platform's dashboard or deployme
 2. Click **Add endpoint**
 3. Enter your production URL:
    ```
-   https://yourdomain.com/api/webhook
+   https://shiftchangess.vercel.app/api/webhook
    ```
 4. Select events to listen for:
    - `payment_intent.succeeded` ✅ (Already handled)

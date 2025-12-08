@@ -25,9 +25,8 @@ Example: `https://shiftchange.com`
 3. Click **Add endpoint**
 4. Enter your webhook URL:
    ```
-   https://yourdomain.com/api/webhook
+   https://shiftchangess.vercel.app/api/webhook
    ```
-   Replace `yourdomain.com` with your actual domain
 
 5. Select events to listen for:
    - ✅ `payment_intent.succeeded`
@@ -73,10 +72,10 @@ DATABASE_URL=postgresql://...
 
 # SendGrid (for emails)
 SENDGRID_API_KEY=SG.5712D6S8X8JEU8MQTUZULCTW
-FROM_EMAIL=noreply@yourdomain.com
+FROM_EMAIL=noreply@shiftchangess.vercel.app
 
 # Application
-APP_URL=https://yourdomain.com
+APP_URL=https://shiftchangess.vercel.app
 VITE_ADMIN_PASSWORD=shiftchange2025
 
 # API Keys
@@ -131,7 +130,7 @@ After successful payment:
 
 Access the admin dashboard at:
 ```
-https://yourdomain.com/admin
+https://shiftchangess.vercel.app/admin
 ```
 
 Password: The value of `VITE_ADMIN_PASSWORD` environment variable

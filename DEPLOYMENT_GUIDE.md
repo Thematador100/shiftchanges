@@ -59,7 +59,7 @@ Copy the output and save it as your `JWT_SECRET`.
 
 1. In Stripe Dashboard (LIVE MODE), go to **Developers > Webhooks**
 2. Click **Add endpoint**
-3. Enter your production URL: `https://yourdomain.vercel.app/api/webhook`
+3. Enter your production URL: `https://shiftchangess.vercel.app/api/webhook`
 4. Select events to listen for:
    - `payment_intent.succeeded` ✅
    - `payment_intent.payment_failed` ✅
@@ -107,7 +107,7 @@ When prompted, add all environment variables.
 
 After deployment completes:
 
-1. **Visit your live URL** (e.g., `https://yourdomain.vercel.app`)
+1. **Visit your live URL** at `https://shiftchangess.vercel.app`
 2. **Test the free features** (Critique, Job Match)
 3. **Test a payment** with a small amount (e.g., $1) using Stripe test card: `4242 4242 4242 4242`
 4. **Verify the webhook** by checking Stripe Dashboard > Developers > Webhooks > [Your Endpoint] > Logs

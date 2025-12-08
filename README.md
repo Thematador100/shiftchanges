@@ -44,7 +44,7 @@ In your Vercel project settings (Settings > Environment Variables), add:
 ### 4. Set Up Stripe Webhook
 
 1. Go to Stripe Dashboard > Developers > Webhooks
-2. Add endpoint: `https://your-domain.vercel.app/api/webhook`
+2. Add endpoint: `https://shiftchangess.vercel.app/api/webhook`
 3. Select events: `payment_intent.succeeded`
 4. Copy the signing secret to `STRIPE_WEBHOOK_SECRET`
 

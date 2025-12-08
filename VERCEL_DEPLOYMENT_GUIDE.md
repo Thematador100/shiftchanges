@@ -112,9 +112,8 @@ Value: (your Gemini API key - check if you have this set up)
 3. Click **"Add endpoint"**
 4. Enter your webhook URL:
    ```
-   https://yourdomain.com/api/webhook
+   https://shiftchangess.vercel.app/api/webhook
    ```
-   (Replace with your actual domain or Vercel URL)
 
 5. Select events to listen to:
    - ✅ `payment_intent.succeeded`
@@ -153,7 +152,7 @@ Value: (your Gemini API key - check if you have this set up)
 6. Check that payment appears in admin dashboard at `/admin`
 
 ### Test Admin Dashboard:
-1. Go to `https://yourdomain.com/admin`
+1. Go to `https://shiftchangess.vercel.app/admin`
 2. Enter password: `shiftchange2025` (or your custom password)
 3. Verify you can see customer data
 
