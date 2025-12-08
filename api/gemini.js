@@ -187,10 +187,12 @@ export default async function handler(req, res) {
     const { action, payload, authToken } = req.body;
     
     // Free actions that don't require payment
-    const freeActions = ['ping', 'generate', 'critique', 'matchScore'];
-    
+    // Users should be able to generate AND improve resumes for free to see what they get before paying
+    const freeActions = ['ping', 'generate', 'improve', 'critique', 'matchScore'];
+
     // Paid actions that require a valid auth token
-    const paidActions = ['improve', 'tailor', 'coverLetter', 'optimizeSkills'];
+    // Premium features: tailoring to jobs, cover letters, ATS optimization
+    const paidActions = ['tailor', 'coverLetter', 'optimizeSkills'];
     
     // Check if this is a paid action
     if (paidActions.includes(action)) {

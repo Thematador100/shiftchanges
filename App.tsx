@@ -273,15 +273,9 @@ const App: React.FC = () => {
         setAppState('editor');
     } catch (e) {
         const msg = e instanceof Error ? e.message : 'Generation failed.';
-        if (msg.includes('401') || msg.includes('Unauthorized') || msg.includes('authentication')) {
-            setNotification('Please purchase a plan to generate resumes.');
-            setNotificationType('error');
-            handleGoToCheckout(getPackageTierForCareerLevel(level));
-        } else {
-            console.error("API Error during operation:", e);
-            setNotification(msg);
-            setNotificationType('error');
-        }
+        console.error("API Error during resume generation:", e);
+        setNotification(msg);
+        setNotificationType('error');
     }
   };
 
@@ -292,15 +286,9 @@ const App: React.FC = () => {
         setAppState('editor');
     } catch (e) {
         const msg = e instanceof Error ? e.message : 'Improvement failed.';
-        if (msg.includes('401') || msg.includes('Unauthorized') || msg.includes('authentication')) {
-            setNotification('Please purchase a plan to improve resumes.');
-            setNotificationType('error');
-            handleGoToCheckout(getPackageTierForCareerLevel(selectedCareerLevel));
-        } else {
-            console.error("API Error during operation:", e);
-            setNotification(msg);
-            setNotificationType('error');
-        }
+        console.error("API Error during resume improvement:", e);
+        setNotification(msg);
+        setNotificationType('error');
     }
   };
 
