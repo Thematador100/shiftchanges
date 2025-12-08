@@ -303,15 +303,9 @@ const App: React.FC = () => {
           setNotificationType('success');
       } catch (e) {
           const msg = e instanceof Error ? e.message : "Failed to optimize skills.";
-          if (msg.includes('401') || msg.includes('Unauthorized') || msg.includes('authentication')) {
-              setNotification('Please purchase a plan to optimize skills.');
-              setNotificationType('error');
-              handleGoToCheckout('fast-ai');
-          } else {
-              console.error("API Error during operation:", e);
-              setNotification(msg);
-              setNotificationType('error');
-          }
+          console.error("API Error during skills optimization:", e);
+          setNotification(msg);
+          setNotificationType('error');
       } finally {
           setIsOptimizingSkills(false);
       }
