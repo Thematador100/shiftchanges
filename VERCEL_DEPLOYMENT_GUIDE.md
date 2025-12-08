@@ -78,7 +78,7 @@ Value: noreply@yourdomain.com (must be verified in SendGrid)
 #### Application Configuration
 ```
 APP_URL
-Value: https://yourdomain.com (or your Vercel URL: https://shiftchanges.vercel.app)
+Value: https://yourdomain.com (or your Vercel URL: https://shiftchangess.vercel.app)
 ```
 
 ```
