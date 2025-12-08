@@ -429,7 +429,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGenerate, onImprove, on
       <div className="mb-10 text-center">
          <div className="flex items-center justify-center gap-3 mb-4 cursor-pointer select-none" onClick={onLogoClick}>
             <ShiftLogo className="h-10 w-10 text-slate-900" />
-            <h1 className="text-3xl font-bold font-brand text-slate-900">ShiftChange</h1>
+            <h1 className="text-3xl font-bold text-slate-900">ShiftChange</h1>
          </div>
          <p className="text-slate-500 font-medium">Select your architecting method below.</p>
       </div>
@@ -470,7 +470,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGenerate, onImprove, on
                 </div>
 
                 {selectedLevel ? (
-                     <div className="bg-blue-50 p-4 rounded-lg border border-blue-100 text-blue-900 text-sm animate-fade-in">
+                     <div className="bg-slate-50 p-4 rounded-lg border border-slate-200 text-slate-700 text-sm animate-fade-in">
                         <strong>Engine Status:</strong> {getLevelDescription(selectedLevel)}
                     </div>
                 ) : (
