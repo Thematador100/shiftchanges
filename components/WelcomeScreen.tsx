@@ -181,18 +181,18 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGenerate, onImprove, on
 
   if (view === 'landing') {
     return (
-        <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-teal-100 selection:text-teal-900">
+        <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-slate-200 selection:text-slate-900">
             {/* Navigation */}
             <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200">
                 <div className="container mx-auto px-6 h-20 flex justify-between items-center">
                       <div className="flex items-center gap-2 cursor-pointer select-none" onClick={onLogoClick}>
-                        <ShiftLogo className="h-8 w-8 text-teal-500" />
-                        <span className="text-2xl font-bold font-brand text-slate-900 tracking-tight">ShiftChange</span>
+                        <ShiftLogo className="h-8 w-8 text-slate-900" />
+                        <span className="text-2xl font-bold text-slate-900 tracking-tight">ShiftChange</span>
                     </div>
                     <div className="hidden md:flex gap-8 text-sm font-semibold text-slate-600">
-                        <button onClick={() => scrollTo('problem')} className="hover:text-teal-600 transition-colors">Why It Works</button>
-                        <button onClick={() => scrollTo('pricing')} className="hover:text-teal-600 transition-colors">Pricing</button>
-                        <button onClick={onLogin} className="hover:text-teal-600 transition-colors">Log In</button>
+                        <button onClick={() => scrollTo('problem')} className="hover:text-slate-900 transition-colors">Why It Works</button>
+                        <button onClick={() => scrollTo('pricing')} className="hover:text-slate-900 transition-colors">Pricing</button>
+                        <button onClick={onLogin} className="hover:text-slate-900 transition-colors">Log In</button>
                     </div>
                     <button onClick={() => setView('hub')} className="bg-slate-900 text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-slate-800 transition-colors shadow-lg shadow-slate-900/20">
                         Build My Resume
@@ -201,41 +201,35 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGenerate, onImprove, on
             </header>
 
             {/* Hero Section */}
-            <main className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
-                <div className="container mx-auto px-6 relative z-10">
+            <main className="relative pt-32 pb-20 lg:pt-48 lg:pb-32">
+                <div className="container mx-auto px-6">
                     <div className="max-w-4xl mx-auto text-center">
-                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-50 border border-teal-100 text-teal-700 text-xs font-bold uppercase tracking-wide mb-8">
-                            <span className="w-2 h-2 rounded-full bg-teal-500 animate-pulse"></span>
+                        <div className="inline-block px-4 py-1 border border-slate-300 text-slate-700 text-xs font-semibold uppercase tracking-wide mb-8">
                             HR & Clinical Lead Approved
                         </div>
-                        <h1 className="text-5xl lg:text-7xl font-extrabold font-brand tracking-tight text-slate-900 leading-[1.1]">
+                        <h1 className="text-5xl lg:text-7xl font-bold tracking-tight text-slate-900 leading-[1.1]">
                             Your Clinical Excellence. <br className="hidden md:block"/>
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-blue-600">Architected for HR.</span>
+                            Architected for HR.
                         </h1>
                         <p className="mt-8 text-xl text-slate-600 leading-relaxed max-w-2xl mx-auto">
                             The first resume engine built by Hospital HR Directors. We translate your bedside chaos into the risk-mitigation and competence language that secures interviews.
                         </p>
                         <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-                            <button onClick={() => setView('hub')} className="w-full sm:w-auto px-8 py-4 bg-teal-500 hover:bg-teal-400 text-white text-lg font-bold rounded-xl shadow-xl shadow-teal-500/20 transition-all transform hover:-translate-y-0.5">
+                            <button onClick={() => setView('hub')} className="w-full sm:w-auto px-8 py-3 bg-slate-900 hover:bg-slate-800 text-white font-semibold transition-colors">
                                 Start Your Transformation
                             </button>
-                            <button onClick={() => scrollTo('problem')} className="w-full sm:w-auto px-8 py-4 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 text-lg font-semibold rounded-xl transition-all">
+                            <button onClick={() => scrollTo('problem')} className="w-full sm:w-auto px-8 py-3 bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 font-semibold transition-colors">
                                 See The HR Logic
                             </button>
                         </div>
-                        <div className="mt-12 flex items-center justify-center gap-8 opacity-60 grayscale mix-blend-multiply">
-                            {/* Placeholder Logos for Trust */}
-                            <span className="text-slate-400 font-bold text-lg">Magnet Recognized</span>
-                            <span className="text-slate-400 font-bold text-lg">Joint Commission</span>
-                            <span className="text-slate-400 font-bold text-lg">Level I Trauma</span>
+                        <div className="mt-12 flex items-center justify-center gap-8 text-sm text-slate-400">
+                            <span>Magnet Recognized</span>
+                            <span className="text-slate-300">•</span>
+                            <span>Joint Commission</span>
+                            <span className="text-slate-300">•</span>
+                            <span>Level I Trauma</span>
                         </div>
                     </div>
-                </div>
-                
-                {/* Background Decor */}
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full -z-10 pointer-events-none">
-                     <div className="absolute top-20 left-10 w-96 h-96 bg-teal-200/20 rounded-full blur-3xl"></div>
-                     <div className="absolute bottom-20 right-10 w-96 h-96 bg-blue-200/20 rounded-full blur-3xl"></div>
                 </div>
             </main>
 
@@ -244,13 +238,12 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGenerate, onImprove, on
                 <div className="container mx-auto px-6 relative z-10">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
                         <div>
-                            <h2 className="text-3xl lg:text-5xl font-bold font-brand mb-6">The 6-Second Scan. <br/><span className="text-teal-400">You are failing it.</span></h2>
+                            <h2 className="text-3xl lg:text-5xl font-bold mb-6">The 6-Second Scan. <br/>You are failing it.</h2>
                             <p className="text-lg text-slate-300 mb-6 leading-relaxed">
                                 I spent 15 years in Hospital HR. We don't read resumes. We scan for <strong className="text-white">Liability</strong> and <strong className="text-white">Competence</strong>.
                             </p>
                             <p className="text-lg text-slate-300 mb-8 leading-relaxed">
-                                Most nurses write task lists: "Administered meds," "Charted in Epic." <br/>
-                                <span className="text-red-400 font-medium">This is fatal.</span> It frames you as a commodity.
+                                Most nurses write task lists: "Administered meds," "Charted in Epic." This is fatal. It frames you as a commodity.
                             </p>
                             <p className="text-lg text-slate-300 leading-relaxed">
                                 <strong className="text-white">ShiftChange</strong> re-engineers your experience into assets: Acuity, Ratios, Outcomes, and Crisis Management. We don't just write a resume; we build a clinical business case for hiring you.
@@ -336,7 +329,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGenerate, onImprove, on
                             <div className="text-center mb-6">
                                 <h3 className="text-2xl font-bold text-slate-900 mb-2">New Grad</h3>
                                 <div className="flex items-baseline justify-center gap-2">
-                                    <span className="text-5xl font-bold text-teal-600">$149</span>
+                                    <span className="text-5xl font-bold text-slate-900">$149</span>
                                 </div>
                                 <p className="text-sm text-slate-500 mt-2">Perfect for new graduates and career changers</p>
                             </div>
@@ -351,21 +344,21 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGenerate, onImprove, on
                             </ul>
                             <button 
                                 onClick={() => onGoToCheckout('fast-ai')} 
-                                className="w-full py-3 bg-teal-500 hover:bg-teal-600 text-white font-bold rounded-lg transition-colors"
+                                className="w-full py-3 bg-slate-900 hover:bg-slate-900 text-white font-bold rounded-lg transition-colors"
                             >
                                 Select New Grad
                             </button>
                         </div>
 
                         {/* Bedside/Clinical Tier */}
-                        <div className="bg-white rounded-2xl shadow-xl border-2 border-teal-500 p-8 relative hover:shadow-2xl transition-shadow">
-                            <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-teal-500 text-white px-4 py-1 rounded-full text-sm font-bold">
+                        <div className="bg-white rounded-2xl shadow-xl border-2 border-slate-900 p-8 relative hover:shadow-2xl transition-shadow">
+                            <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-4 py-1 rounded-full text-sm font-bold">
                                 Most Popular
                             </div>
                             <div className="text-center mb-6">
                                 <h3 className="text-2xl font-bold text-slate-900 mb-2">Bedside/Clinical</h3>
                                 <div className="flex items-baseline justify-center gap-2">
-                                    <span className="text-5xl font-bold text-teal-600">$299</span>
+                                    <span className="text-5xl font-bold text-slate-900">$299</span>
                                 </div>
                                 <p className="text-sm text-slate-500 mt-2">For experienced bedside nurses</p>
                             </div>
@@ -381,7 +374,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGenerate, onImprove, on
                             </ul>
                             <button 
                                 onClick={() => onGoToCheckout('ai-target')} 
-                                className="w-full py-3 bg-teal-500 hover:bg-teal-600 text-white font-bold rounded-lg transition-colors"
+                                className="w-full py-3 bg-slate-900 hover:bg-slate-900 text-white font-bold rounded-lg transition-colors"
                             >
                                 Select Bedside/Clinical
                             </button>
@@ -392,7 +385,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGenerate, onImprove, on
                             <div className="text-center mb-6">
                                 <h3 className="text-2xl font-bold text-slate-900 mb-2">Leadership/NP</h3>
                                 <div className="flex items-baseline justify-center gap-2">
-                                    <span className="text-5xl font-bold text-teal-600">$499</span>
+                                    <span className="text-5xl font-bold text-slate-900">$499</span>
                                 </div>
                                 <p className="text-sm text-slate-500 mt-2">For managers and advanced practice</p>
                             </div>
@@ -408,7 +401,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGenerate, onImprove, on
                             </ul>
                             <button 
                                 onClick={() => onGoToCheckout('expert-clinical')} 
-                                className="w-full py-3 bg-teal-500 hover:bg-teal-600 text-white font-bold rounded-lg transition-colors"
+                                className="w-full py-3 bg-slate-900 hover:bg-slate-900 text-white font-bold rounded-lg transition-colors"
                             >
                                 Select Leadership/NP
                             </button>
@@ -420,7 +413,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGenerate, onImprove, on
             <footer className="bg-slate-900 text-slate-400 py-12 border-t border-slate-800">
                 <div className="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
                     <div className="flex items-center gap-2">
-                        <ShiftLogo className="h-6 w-6 text-teal-500" />
+                        <ShiftLogo className="h-6 w-6 text-slate-900" />
                         <span className="text-xl font-bold font-brand text-white">ShiftChange</span>
                     </div>
                     <p className="text-sm">© {new Date().getFullYear()} ShiftChange. All Clinical Rights Reserved.</p>
@@ -435,7 +428,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGenerate, onImprove, on
       {/* Creation Hub Header */}
       <div className="mb-10 text-center">
          <div className="flex items-center justify-center gap-3 mb-4 cursor-pointer select-none" onClick={onLogoClick}>
-            <ShiftLogo className="h-10 w-10 text-teal-600" />
+            <ShiftLogo className="h-10 w-10 text-slate-900" />
             <h1 className="text-3xl font-bold font-brand text-slate-900">ShiftChange</h1>
          </div>
          <p className="text-slate-500 font-medium">Select your architecting method below.</p>
@@ -487,7 +480,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGenerate, onImprove, on
                 <div className={`transition-all duration-300 ${!selectedLevel ? 'opacity-50 pointer-events-none blur-sm' : 'opacity-100'}`}>
                     <label className="block text-sm font-bold text-slate-700 mb-2">Clinical Brain Dump</label>
                     <textarea
-                        className="w-full p-4 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 transition h-40 text-base resize-none"
+                        className="w-full p-4 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-400 transition h-40 text-base resize-none"
                         placeholder="Describe your experience..."
                         value={generatePrompt}
                         onChange={(e) => setGeneratePrompt(e.target.value)}
@@ -511,10 +504,10 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGenerate, onImprove, on
                     <button
                         onClick={triggerFileInput}
                         disabled={isLoading}
-                        className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-slate-300 rounded-xl hover:border-teal-500 hover:bg-teal-50 transition-all group"
+                        className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-slate-300 rounded-xl hover:border-slate-900 hover:bg-slate-50 transition-all group"
                     >
-                        <UploadIcon className="h-8 w-8 text-slate-400 group-hover:text-teal-600 mb-2" />
-                        <span className="font-semibold text-slate-600 group-hover:text-teal-700">Upload File</span>
+                        <UploadIcon className="h-8 w-8 text-slate-400 group-hover:text-slate-900 mb-2" />
+                        <span className="font-semibold text-slate-600 group-hover:text-slate-900">Upload File</span>
                         <span className="text-xs text-slate-400 mt-1">PDF, DOCX, TXT</span>
                     </button>
                      <input
@@ -527,7 +520,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGenerate, onImprove, on
                     <div className="flex flex-col justify-center">
                          <label className="block text-sm font-bold text-slate-700 mb-2">Or Paste Text</label>
                          <textarea
-                            className="w-full p-4 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 transition h-32 resize-none text-sm"
+                            className="w-full p-4 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-400 transition h-32 resize-none text-sm"
                             placeholder="Paste resume content..."
                             value={improveText}
                             onChange={(e) => setImproveText(e.target.value)}
@@ -561,16 +554,16 @@ const ShiftLogo = ({ className }: { className?: string }) => (
 
 const PricingFeature: React.FC<{ text: string }> = ({ text }) => (
     <li className="flex items-start gap-3">
-        <CheckIcon className="h-5 w-5 text-teal-600 flex-shrink-0 mt-0.5" />
+        <CheckIcon className="h-5 w-5 text-slate-900 flex-shrink-0 mt-0.5" />
         <span className="text-slate-700">{text}</span>
     </li>
 );
 
 const ComparisonRow: React.FC<{ label: string, text: string, isGood?: boolean, isBad?: boolean }> = ({ label, text, isGood, isBad }) => (
-    <div className={`p-4 rounded-lg border ${isGood ? 'bg-teal-900/30 border-teal-700/50' : 'bg-red-900/20 border-red-800/30'}`}>
+    <div className={`p-4 rounded-lg border ${isGood ? 'bg-slate-700/30 border-slate-600/50' : 'bg-red-900/20 border-red-800/30'}`}>
         <div className="flex items-center justify-between mb-2">
-            <span className={`text-xs font-bold uppercase tracking-wider ${isGood ? 'text-teal-400' : 'text-red-400'}`}>{label}</span>
-            {isGood && <ShieldCheckIcon className="h-4 w-4 text-teal-400"/>}
+            <span className={`text-xs font-bold uppercase tracking-wider ${isGood ? 'text-slate-300' : 'text-red-400'}`}>{label}</span>
+            {isGood && <ShieldCheckIcon className="h-4 w-4 text-slate-300"/>}
         </div>
         <p className={`${isGood ? 'text-white font-medium' : 'text-slate-400'}`}>{text}</p>
     </div>
@@ -578,7 +571,7 @@ const ComparisonRow: React.FC<{ label: string, text: string, isGood?: boolean, i
 
 const FeatureCard: React.FC<{ icon: React.ReactNode, title: string, desc: string }> = ({ icon, title, desc }) => (
     <div className="p-8 rounded-2xl bg-slate-50 border border-slate-100 hover:shadow-lg transition-shadow">
-        <div className="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center text-teal-600 mb-6">
+        <div className="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center text-slate-900 mb-6">
             {icon}
         </div>
         <h3 className="text-xl font-bold text-slate-900 mb-3">{title}</h3>
@@ -587,8 +580,8 @@ const FeatureCard: React.FC<{ icon: React.ReactNode, title: string, desc: string
 )
 
 const PricingCard: React.FC<{ title: string, price: number, desc: string, features: string[], action: () => void, isPopular?: boolean, isDark?: boolean }> = ({ title, price, desc, features, action, isPopular, isDark }) => (
-    <div className={`relative p-8 rounded-2xl flex flex-col ${isDark ? 'bg-slate-900 text-white' : 'bg-white text-slate-900 border border-slate-200'} ${isPopular ? 'ring-2 ring-teal-500 shadow-xl' : ''}`}>
-        {isPopular && <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-teal-500 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">Most Popular</div>}
+    <div className={`relative p-8 rounded-2xl flex flex-col ${isDark ? 'bg-slate-900 text-white' : 'bg-white text-slate-900 border border-slate-200'} ${isPopular ? 'ring-2 ring-slate-900 shadow-xl' : ''}`}>
+        {isPopular && <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-slate-900 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">Most Popular</div>}
         <div className="mb-6">
             <h3 className={`text-lg font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{title}</h3>
             <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{desc}</p>
@@ -599,12 +592,12 @@ const PricingCard: React.FC<{ title: string, price: number, desc: string, featur
         <ul className="space-y-4 mb-8 flex-1">
             {features.map((f, i) => (
                 <li key={i} className="flex items-start gap-3 text-sm">
-                    <CheckIcon className={`h-5 w-5 ${isDark ? 'text-teal-400' : 'text-teal-600'}`} />
+                    <CheckIcon className={`h-5 w-5 ${isDark ? 'text-slate-300' : 'text-slate-900'}`} />
                     <span className={isDark ? 'text-slate-300' : 'text-slate-600'}>{f}</span>
                 </li>
             ))}
         </ul>
-        <button onClick={action} className={`w-full py-3 rounded-lg font-bold transition-colors ${isDark ? 'bg-teal-500 hover:bg-teal-400 text-white' : 'bg-slate-900 hover:bg-slate-800 text-white'}`}>
+        <button onClick={action} className={`w-full py-3 rounded-lg font-bold transition-colors ${isDark ? 'bg-slate-900 hover:bg-slate-800 text-white' : 'bg-slate-900 hover:bg-slate-800 text-white'}`}>
             Select Plan
         </button>
     </div>
@@ -612,7 +605,7 @@ const PricingCard: React.FC<{ title: string, price: number, desc: string, featur
 
 const TabButton: React.FC<{ label: string; isActive: boolean; onClick: () => void; }> = ({ label, isActive, onClick }) => (
     <button onClick={onClick} className={`flex-1 py-5 text-sm font-bold transition-all
-        ${isActive ? 'text-teal-600 border-b-2 border-teal-600 bg-teal-50/50' : 'text-slate-500 hover:text-slate-800'}`}>
+        ${isActive ? 'text-slate-900 border-b-2 border-slate-900 bg-slate-50/50' : 'text-slate-500 hover:text-slate-800'}`}>
         {label}
     </button>
 );
@@ -622,15 +615,15 @@ const LevelCard: React.FC<{ title: string; subtitle: string; isSelected: boolean
         onClick={onClick}
         className={`p-4 rounded-xl border-2 text-left transition-all duration-300 flex flex-col justify-between h-24
         ${isSelected 
-            ? 'border-teal-500 bg-teal-50 shadow-md transform scale-[1.02]' 
+            ? 'border-slate-900 bg-slate-50 shadow-md transform scale-[1.02]' 
             : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50'
         }`}
     >
         <div className="flex justify-between items-start w-full">
-            <span className={`font-bold ${isSelected ? 'text-teal-900' : 'text-slate-700'}`}>{title}</span>
-            {isSelected && <CheckCircleIcon className="w-5 h-5 text-teal-600" />}
+            <span className={`font-bold ${isSelected ? 'text-slate-900' : 'text-slate-700'}`}>{title}</span>
+            {isSelected && <CheckCircleIcon className="w-5 h-5 text-slate-900" />}
         </div>
-        <span className={`text-xs font-semibold uppercase tracking-wide ${isSelected ? 'text-teal-600' : 'text-slate-400'}`}>{subtitle}</span>
+        <span className={`text-xs font-semibold uppercase tracking-wide ${isSelected ? 'text-slate-900' : 'text-slate-400'}`}>{subtitle}</span>
     </button>
 );
 
@@ -638,7 +631,7 @@ const ActionButton: React.FC<{onClick: ()=>void | Promise<void>, isLoading: bool
     <button
         onClick={() => { onClick(); }}
         disabled={isLoading || disabled}
-        className="w-full py-4 bg-teal-600 hover:bg-teal-500 text-white text-lg font-bold rounded-xl shadow-lg shadow-teal-500/20 disabled:bg-slate-300 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+        className="w-full py-4 bg-slate-900 hover:bg-slate-900 text-white text-lg font-bold rounded-xl shadow-lg shadow-slate-900/10 disabled:bg-slate-300 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
     >
         {isLoading && <svg className="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>}
         {text}

@@ -90,7 +90,7 @@ const PaymentForm: React.FC<{
              <button 
                 type="submit" 
                 disabled={isLoading || !stripe || !elements}
-                className="w-full bg-teal-600 text-white font-bold py-4 px-4 rounded-xl hover:bg-teal-500 transition-all focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 text-lg shadow-lg shadow-teal-500/20 mt-6 disabled:bg-slate-300 disabled:cursor-not-allowed flex justify-center items-center gap-2"
+                className="w-full bg-slate-600 text-white font-bold py-4 px-4 rounded-xl hover:bg-slate-500 transition-all focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 text-lg shadow-lg shadow-slate-500/20 mt-6 disabled:bg-slate-300 disabled:cursor-not-allowed flex justify-center items-center gap-2"
             >
                 {isLoading && <Spinner />}
                 {isLoading ? 'Processing Secure Payment...' : `Pay $${amount}`}
@@ -241,7 +241,7 @@ const Checkout: React.FC<CheckoutProps> = ({ plan, onPurchase, onBack }) => {
     return (
         <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8 font-sans">
             <div className="w-full max-w-4xl mx-auto">
-                <button onClick={onBack} className="flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-teal-600 transition-colors mb-6">
+                <button onClick={onBack} className="flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-slate-600 transition-colors mb-6">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                     <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
@@ -255,16 +255,16 @@ const Checkout: React.FC<CheckoutProps> = ({ plan, onPurchase, onBack }) => {
                             <h2 className="text-2xl font-bold font-brand mb-4">Investment Summary</h2>
 
                             {/* 24-Hour Delivery Promise */}
-                            <div className="bg-teal-900/30 border border-teal-700/50 rounded-lg p-4 mb-6">
+                            <div className="bg-slate-900/30 border border-slate-700/50 rounded-lg p-4 mb-6">
                                 <div className="flex items-center gap-3">
                                     <div className="flex-shrink-0">
-                                        <svg className="w-6 h-6 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <svg className="w-6 h-6 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                         </svg>
                                     </div>
                                     <div>
-                                        <p className="font-bold text-teal-300 text-sm">Final Resume Delivered in 24 Hours</p>
-                                        <p className="text-xs text-teal-200/80 mt-0.5">Professional review and finalization included</p>
+                                        <p className="font-bold text-slate-300 text-sm">Final Resume Delivered in 24 Hours</p>
+                                        <p className="text-xs text-slate-200/80 mt-0.5">Professional review and finalization included</p>
                                     </div>
                                 </div>
                             </div>
@@ -276,18 +276,18 @@ const Checkout: React.FC<CheckoutProps> = ({ plan, onPurchase, onBack }) => {
                                             <p className="text-xl font-bold text-white">{details.name}</p>
                                             <p className="text-sm text-slate-400">ShiftChange Professional Access</p>
                                         </div>
-                                        <p className="text-2xl font-bold text-teal-400">${details.price}</p>
+                                        <p className="text-2xl font-bold text-slate-400">${details.price}</p>
                                     </div>
                                     
                                     {/* Discount Row */}
                                     {appliedCoupon && (
-                                        <div className="flex items-center justify-between py-4 bg-teal-900/30 px-2 -mx-2 rounded">
+                                        <div className="flex items-center justify-between py-4 bg-slate-900/30 px-2 -mx-2 rounded">
                                             <div>
-                                                <p className="text-sm font-bold text-teal-300 flex items-center gap-2">
+                                                <p className="text-sm font-bold text-slate-300 flex items-center gap-2">
                                                     <TagIcon /> Code: {appliedCoupon.code}
                                                 </p>
                                             </div>
-                                            <p className="text-lg font-bold text-teal-300">-${discountAmount.toFixed(0)}</p>
+                                            <p className="text-lg font-bold text-slate-300">-${discountAmount.toFixed(0)}</p>
                                         </div>
                                     )}
                                     
@@ -299,14 +299,14 @@ const Checkout: React.FC<CheckoutProps> = ({ plan, onPurchase, onBack }) => {
                                                     type="checkbox"
                                                     checked={addCoverLetter}
                                                     onChange={(e) => setAddCoverLetter(e.target.checked)}
-                                                    className="mt-1 h-4 w-4 text-teal-600 rounded focus:ring-teal-500"
+                                                    className="mt-1 h-4 w-4 text-slate-600 rounded focus:ring-slate-500"
                                                 />
                                                 <div>
                                                     <p className="text-sm font-bold text-white">Add Cover Letter</p>
                                                     <p className="text-xs text-slate-400">Professional cover letter tailored to your target role</p>
                                                 </div>
                                             </label>
-                                            <p className="text-lg font-bold text-teal-400">+${coverLetterPrice}</p>
+                                            <p className="text-lg font-bold text-slate-400">+${coverLetterPrice}</p>
                                         </div>
                                     )}
                                 </div>
@@ -322,7 +322,7 @@ const Checkout: React.FC<CheckoutProps> = ({ plan, onPurchase, onBack }) => {
                                         onChange={(e) => setCouponCode(e.target.value)}
                                         placeholder="Enter code"
                                         disabled={!!appliedCoupon}
-                                        className="bg-slate-800 border border-slate-600 text-white text-sm rounded-lg px-3 py-2 w-full focus:outline-none focus:border-teal-500 uppercase"
+                                        className="bg-slate-800 border border-slate-600 text-white text-sm rounded-lg px-3 py-2 w-full focus:outline-none focus:border-slate-500 uppercase"
                                     />
                                     {!appliedCoupon ? (
                                         <button 
@@ -365,17 +365,17 @@ const Checkout: React.FC<CheckoutProps> = ({ plan, onPurchase, onBack }) => {
 
                             {isFree ? (
                                 <form onSubmit={handlePurchase} className="space-y-6">
-                                    <div className="bg-teal-50 border border-teal-200 rounded-lg p-6 text-center">
-                                        <div className="w-16 h-16 bg-teal-100 text-teal-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <div className="bg-slate-50 border border-slate-200 rounded-lg p-6 text-center">
+                                        <div className="w-16 h-16 bg-slate-100 text-slate-600 rounded-full flex items-center justify-center mx-auto mb-4">
                                             <CheckIcon className="w-8 h-8"/>
                                         </div>
-                                        <h3 className="text-lg font-bold text-teal-900">100% Discount Applied</h3>
-                                        <p className="text-teal-700 mt-2">No payment information is required.</p>
+                                        <h3 className="text-lg font-bold text-slate-900">100% Discount Applied</h3>
+                                        <p className="text-slate-700 mt-2">No payment information is required.</p>
                                     </div>
                                     <button 
                                         type="submit" 
                                         disabled={isLoading}
-                                        className="w-full bg-teal-600 text-white font-bold py-4 px-4 rounded-xl hover:bg-teal-500 transition-all text-lg shadow-lg"
+                                        className="w-full bg-slate-600 text-white font-bold py-4 px-4 rounded-xl hover:bg-slate-500 transition-all text-lg shadow-lg"
                                     >
                                         {isLoading ? 'Activating...' : 'Activate Account Now'}
                                     </button>
@@ -444,7 +444,7 @@ const Input: React.FC<{label: string, id: string, placeholder: string, value?: s
             placeholder={placeholder} 
             value={value}
             onChange={onChange}
-            className="w-full text-base px-4 py-3 border border-slate-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition bg-slate-50 focus:bg-white" 
+            className="w-full text-base px-4 py-3 border border-slate-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-slate-500 transition bg-slate-50 focus:bg-white" 
         />
     </div>
 );
