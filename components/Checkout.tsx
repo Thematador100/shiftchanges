@@ -252,7 +252,23 @@ const Checkout: React.FC<CheckoutProps> = ({ plan, onPurchase, onBack }) => {
                     <div className="grid grid-cols-1 lg:grid-cols-2">
                         {/* Order Summary */}
                         <div className="p-8 md:p-12 bg-slate-900 text-white border-b lg:border-r lg:border-b-0">
-                            <h2 className="text-2xl font-bold font-brand mb-8">Investment Summary</h2>
+                            <h2 className="text-2xl font-bold font-brand mb-4">Investment Summary</h2>
+
+                            {/* 24-Hour Delivery Promise */}
+                            <div className="bg-teal-900/30 border border-teal-700/50 rounded-lg p-4 mb-6">
+                                <div className="flex items-center gap-3">
+                                    <div className="flex-shrink-0">
+                                        <svg className="w-6 h-6 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <p className="font-bold text-teal-300 text-sm">Final Resume Delivered in 24 Hours</p>
+                                        <p className="text-xs text-teal-200/80 mt-0.5">Professional review and finalization included</p>
+                                    </div>
+                                </div>
+                            </div>
+
                             <div className="flow-root">
                                 <div className="-my-4 divide-y divide-slate-700">
                                     <div className="flex items-center justify-between py-4">

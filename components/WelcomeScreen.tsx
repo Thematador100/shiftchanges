@@ -1,6 +1,7 @@
 
 import React, { useState, useRef } from 'react';
 import { PackageTier, CareerLevel } from '../types';
+import ResumeSamples from './ResumeSamples';
 
 // Declare globals for the libraries loaded in index.html
 declare const pdfjsLib: any;
@@ -78,6 +79,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGenerate, onImprove, on
   const [selectedLevel, setSelectedLevel] = useState<CareerLevel | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showSamples, setShowSamples] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleGenerate = async () => {
@@ -218,6 +220,9 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGenerate, onImprove, on
                         <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
                             <button onClick={() => setView('hub')} className="w-full sm:w-auto px-8 py-4 bg-teal-500 hover:bg-teal-400 text-white text-lg font-bold rounded-xl shadow-xl shadow-teal-500/20 transition-all transform hover:-translate-y-0.5">
                                 Start Your Transformation
+                            </button>
+                            <button onClick={() => setShowSamples(true)} className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white text-lg font-bold rounded-xl shadow-xl shadow-indigo-500/20 transition-all transform hover:-translate-y-0.5">
+                                View Sample Resumes
                             </button>
                             <button onClick={() => scrollTo('problem')} className="w-full sm:w-auto px-8 py-4 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 text-lg font-semibold rounded-xl transition-all">
                                 See The HR Logic
@@ -547,6 +552,9 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGenerate, onImprove, on
         </div>
       </div>
     </div>
+
+    {/* Resume Samples Modal */}
+    {showSamples && <ResumeSamples onClose={() => setShowSamples(false)} />}
   );
 };
 

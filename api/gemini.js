@@ -187,10 +187,10 @@ export default async function handler(req, res) {
     const { action, payload, authToken } = req.body;
     
     // Free actions that don't require payment
-    const freeActions = ['ping', 'generate', 'critique', 'matchScore'];
-    
+    const freeActions = ['ping', 'generate', 'critique', 'matchScore', 'optimizeSkills'];
+
     // Paid actions that require a valid auth token
-    const paidActions = ['improve', 'tailor', 'coverLetter', 'optimizeSkills'];
+    const paidActions = ['improve', 'tailor', 'coverLetter'];
     
     // Check if this is a paid action
     if (paidActions.includes(action)) {
