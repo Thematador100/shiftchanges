@@ -1,6 +1,7 @@
 
 import React, { useState, useRef } from 'react';
 import { PackageTier, CareerLevel } from '../types';
+import LiveResumeBuilder from './LiveResumeBuilder';
 
 // Declare globals for the libraries loaded in index.html
 declare const pdfjsLib: any;
@@ -71,7 +72,7 @@ interface WelcomeScreenProps {
 }
 
 const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGenerate, onImprove, onManualEdit, onGoToCheckout, onLogoClick, onLogin }) => {
-  const [view, setView] = useState<'landing' | 'hub'>('landing');
+  const [view, setView] = useState<'landing' | 'hub' | 'builder'>('landing');
   const [generatePrompt, setGeneratePrompt] = useState('');
   const [improveText, setImproveText] = useState('');
   const [activeHubTab, setActiveHubTab] = useState<'generate' | 'improve'>('generate');
@@ -179,6 +180,11 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGenerate, onImprove, on
       }
   }
 
+  // Show live builder if selected
+  if (view === 'builder') {
+    return <LiveResumeBuilder onGenerate={onGenerate} onBack={() => setView('landing')} />;
+  }
+
   if (view === 'landing') {
     return (
         <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-slate-200 selection:text-slate-900">
@@ -215,7 +221,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGenerate, onImprove, on
                             The first resume engine built by Hospital HR Directors. We translate your bedside chaos into the risk-mitigation and competence language that secures interviews.
                         </p>
                         <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-                            <button onClick={() => setView('hub')} className="w-full sm:w-auto px-8 py-3 bg-slate-900 hover:bg-slate-800 text-white font-semibold transition-colors">
+                            <button onClick={() => setView('builder')} className="w-full sm:w-auto px-8 py-3 bg-slate-900 hover:bg-slate-800 text-white font-semibold transition-colors">
                                 Start Your Transformation
                             </button>
                             <button onClick={() => scrollTo('problem')} className="w-full sm:w-auto px-8 py-3 bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 font-semibold transition-colors">
