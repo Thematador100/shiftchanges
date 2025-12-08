@@ -1,7 +1,6 @@
 
 import React, { useState, useRef } from 'react';
 import { PackageTier, CareerLevel } from '../types';
-import LiveResumeBuilder from './LiveResumeBuilder';
 
 // Declare globals for the libraries loaded in index.html
 declare const pdfjsLib: any;
@@ -72,7 +71,7 @@ interface WelcomeScreenProps {
 }
 
 const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGenerate, onImprove, onManualEdit, onGoToCheckout, onLogoClick, onLogin }) => {
-  const [view, setView] = useState<'landing' | 'hub' | 'builder'>('landing');
+  const [view, setView] = useState<'landing' | 'hub'>('landing');
   const [generatePrompt, setGeneratePrompt] = useState('');
   const [improveText, setImproveText] = useState('');
   const [activeHubTab, setActiveHubTab] = useState<'generate' | 'improve'>('generate');
@@ -180,11 +179,6 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGenerate, onImprove, on
       }
   }
 
-  // Show live builder if selected
-  if (view === 'builder') {
-    return <LiveResumeBuilder onGenerate={onGenerate} onBack={() => setView('landing')} />;
-  }
-
   if (view === 'landing') {
     return (
         <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-slate-200 selection:text-slate-900">
@@ -221,7 +215,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGenerate, onImprove, on
                             The first resume engine built by Hospital HR Directors. We translate your bedside chaos into the risk-mitigation and competence language that secures interviews.
                         </p>
                         <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-                            <button onClick={() => setView('builder')} className="w-full sm:w-auto px-8 py-3 bg-slate-900 hover:bg-slate-800 text-white font-semibold transition-colors">
+                            <button onClick={() => setView('hub')} className="w-full sm:w-auto px-8 py-3 bg-slate-900 hover:bg-slate-800 text-white font-semibold transition-colors">
                                 Start Your Transformation
                             </button>
                             <button onClick={() => scrollTo('problem')} className="w-full sm:w-auto px-8 py-3 bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 font-semibold transition-colors">
@@ -430,28 +424,37 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGenerate, onImprove, on
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4 lg:p-8">
-      {/* Creation Hub Header */}
-      <div className="mb-10 text-center">
-         <div className="flex items-center justify-center gap-3 mb-4 cursor-pointer select-none" onClick={onLogoClick}>
-            <ShiftLogo className="h-10 w-10 text-slate-900" />
-            <h1 className="text-3xl font-bold text-slate-900">ShiftChange</h1>
-         </div>
-         <p className="text-slate-500 font-medium">Select your architecting method below.</p>
+    <div className="min-h-screen bg-white">
+      {/* Header */}
+      <div className="border-b border-slate-200 bg-white sticky top-0 z-10">
+        <div className="container mx-auto px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-2 cursor-pointer" onClick={onLogoClick}>
+            <ShiftLogo className="h-8 w-8 text-slate-900" />
+            <span className="text-xl font-bold text-slate-900">ShiftChange</span>
+          </div>
+          <button onClick={onManualEdit} className="text-sm text-slate-600 hover:text-slate-900 font-medium">
+            Skip to Full Editor →
+          </button>
+        </div>
       </div>
 
-      <div className="w-full max-w-4xl bg-white rounded-2xl shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden">
+      <div className="container mx-auto px-6 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-8">
+
+          {/* LEFT: Input Form */}
+          <div>
+            <div className="bg-white border border-slate-200 rounded-lg overflow-hidden">
         {/* Hub Tabs */}
         <div className="flex border-b border-slate-100">
           <TabButton label="Generate New Profile" isActive={activeHubTab === 'generate'} onClick={() => setActiveHubTab('generate')} />
           <TabButton label="Upgrade Existing Resume" isActive={activeHubTab === 'improve'} onClick={() => setActiveHubTab('improve')} />
         </div>
-        
-        <div className="p-8 lg:p-12 min-h-[400px]">
+
+        <div className="p-6">
             {error && <ErrorMessage message={error} onDismiss={() => setError(null)} />}
 
             {activeHubTab === 'generate' && (
-            <div className="animate-fade-in max-w-2xl mx-auto space-y-6">
+            <div className="space-y-6">
                 
                 {/* Level Selection Grid - The Anti-Competitor "Secret Sauce" Display */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
@@ -503,7 +506,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGenerate, onImprove, on
             )}
 
             {activeHubTab === 'improve' && (
-            <div className="animate-fade-in max-w-2xl mx-auto space-y-6">
+            <div className="space-y-6">
                 <p className="text-slate-600 text-center">Upload your current resume. We will strip the formatting and re-engineer the content.</p>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -537,15 +540,89 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGenerate, onImprove, on
                 <ActionButton onClick={handleImprove} isLoading={isLoading} text="Re-Engineer Resume" disabled={isLoading} />
             </div>
             )}
-            
-             <div className="text-center mt-10 pt-6 border-t border-slate-50">
-                <button onClick={onManualEdit} disabled={isLoading} className="text-slate-400 hover:text-slate-600 font-medium text-sm transition-colors">
-                    Skip AI & Start with Blank Template
-                </button>
-            </div>
         </div>
       </div>
     </div>
+
+    {/* RIGHT: Live Preview - Only show on generate tab */}
+    {activeHubTab === 'generate' && (
+      <div className="hidden lg:block sticky top-24 h-fit">
+        <div className="bg-white border border-slate-200 rounded-lg shadow-sm overflow-hidden">
+          {/* Resume Preview */}
+          <div className="bg-white p-8 text-sm" style={{ fontFamily: 'Georgia, serif' }}>
+
+            {/* Header */}
+            <div className="text-center border-b border-gray-300 pb-4 mb-4">
+              <h1 className="text-2xl font-bold text-gray-900 mb-1">
+                {generatePrompt.includes('Name:') ? generatePrompt.split('Name:')[1].split('\n')[0].trim() : 'Your Name'}
+              </h1>
+              <p className="text-base text-gray-700 font-medium">
+                Registered Nurse
+              </p>
+              <p className="text-xs text-gray-600 mt-1">City, State • (555) 123-4567 • email@example.com</p>
+            </div>
+
+            {/* Professional Summary */}
+            <div className="mb-4">
+              <h2 className="text-xs font-bold uppercase tracking-wide text-gray-900 border-b border-gray-300 pb-1 mb-2">
+                Professional Summary
+              </h2>
+              <p className="text-gray-800 leading-relaxed text-xs">
+                {generatePrompt || 'Dedicated nursing professional with expertise in patient care, clinical procedures, and healthcare coordination. Proven track record of delivering high-quality care in fast-paced medical environments.'}
+              </p>
+            </div>
+
+            {/* Professional Experience */}
+            <div className="mb-4">
+              <h2 className="text-xs font-bold uppercase tracking-wide text-gray-900 border-b border-gray-300 pb-1 mb-2">
+                Professional Experience
+              </h2>
+              <div>
+                <div className="flex justify-between items-baseline mb-1">
+                  <h3 className="font-bold text-gray-900 text-xs">Registered Nurse</h3>
+                  <span className="text-xs text-gray-600">2020 - Present</span>
+                </div>
+                <p className="text-gray-700 text-xs mb-1">Medical Center | City, State</p>
+                <ul className="space-y-0.5 text-xs text-gray-800">
+                  <li className="flex"><span className="mr-2">•</span><span>Provide direct patient care in high-acuity unit</span></li>
+                  <li className="flex"><span className="mr-2">•</span><span>Manage assessments and medication administration</span></li>
+                  <li className="flex"><span className="mr-2">•</span><span>Collaborate with interdisciplinary healthcare team</span></li>
+                </ul>
+              </div>
+            </div>
+
+            {/* Skills */}
+            <div className="mb-4">
+              <h2 className="text-xs font-bold uppercase tracking-wide text-gray-900 border-b border-gray-300 pb-1 mb-2">
+                Core Competencies
+              </h2>
+              <p className="text-xs text-gray-800">Patient Care • Clinical Assessment • EMR Documentation • Medication Administration</p>
+            </div>
+
+            {/* Education */}
+            <div>
+              <h2 className="text-xs font-bold uppercase tracking-wide text-gray-900 border-b border-gray-300 pb-1 mb-2">
+                Education & Certifications
+              </h2>
+              <p className="font-semibold text-gray-900 text-xs">Bachelor of Science in Nursing (BSN)</p>
+              <p className="text-gray-700 text-xs">University Name, Year</p>
+              <p className="text-gray-800 text-xs mt-1"><strong>Licenses:</strong> RN, BLS, ACLS</p>
+            </div>
+          </div>
+
+          {/* Preview Label */}
+          <div className="bg-slate-50 border-t border-slate-200 px-4 py-2">
+            <p className="text-xs text-slate-500 text-center">
+              Live Preview • Updates as you type
+            </p>
+          </div>
+        </div>
+      </div>
+    )}
+
+          </div>
+        </div>
+      </div>
   );
 };
 
